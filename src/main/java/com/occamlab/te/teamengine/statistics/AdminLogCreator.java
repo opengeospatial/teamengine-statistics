@@ -188,7 +188,7 @@ public class AdminLogCreator {
 
   public static void main(String[] args) throws SAXException, ParserConfigurationException, IOException {
     
-    String userDirectory = "/home/upendrasachan/TE_BASE/users";
+    String userDirectory = args[0];
     File pathUserDirecFile=new File(userDirectory);
     File configDir=new File(userDirectory.split("users")[0] + "config.xml");
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
