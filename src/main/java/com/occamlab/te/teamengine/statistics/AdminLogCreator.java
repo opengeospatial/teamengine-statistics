@@ -10,12 +10,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
+import org.joda.time.format.DateTimeFormat;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -59,9 +66,14 @@ public class AdminLogCreator {
               Document doc = db.parse(sessionFile);
               Element session = (Element) (doc.getElementsByTagName("session").item(0));
               if ((session.getAttribute("sourcesId")).contains(testName)) {
+            	  String date=null;
+            	  if(session.getAttribute("date") !=null && session.getAttribute("date") !=""){
+            		  date=session.getAttribute("date");
+            	  } 
+            	  try {
                 Path file = sessionFile.toPath();
                 BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
-                DateTime fileCreationTime = new DateTime(attr.creationTime().toString());
+                DateTime fileCreationTime = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss").parseDateTime(date).withZone(DateTimeZone.getDefault());
                 DateTime currentTime = DateTime.now();
                 int countDay = Days.daysBetween(fileCreationTime, currentTime).getDays();
                 if (countDay <= 30) {
@@ -79,7 +91,12 @@ public class AdminLogCreator {
                 } else {
                   setCountAllTime();
                 }
-              }
+              } catch (Exception e) {
+            	  System.out.println(" Invalid date exception occured : ");
+					e.printStackTrace();
+					System.exit(1);
+  				}
+            } 
             }
           }
         }
@@ -109,9 +126,14 @@ public class AdminLogCreator {
               Document doc = db.parse(sessionFile);
               Element session = (Element) (doc.getElementsByTagName("session").item(0));
               if ((session.getAttribute("sourcesId")).contains(testName)) {
+            	  String date=null;
+            	  if(session.getAttribute("date") !=null && session.getAttribute("date") !=""){
+            		  date=session.getAttribute("date");
+            	  } 
+            	  try {
                 Path file = sessionFile.toPath();
                 BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
-                DateTime fileCreationTime = new DateTime(attr.creationTime().toString());
+                DateTime fileCreationTime = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss").parseDateTime(date).withZone(DateTimeZone.getDefault());
                 DateTime currentTime = DateTime.now();
                 int countDay = Days.daysBetween(fileCreationTime, currentTime).getDays();
                 if (countDay <= 30) {
@@ -123,6 +145,11 @@ public class AdminLogCreator {
                 } else {
                   innercountAllTime = 1;
                 }
+            	  } catch (Exception e) {
+    					System.out.println(" Invalid date exception occured : ");
+    					e.printStackTrace();
+    					System.exit(1);
+    				}
               }
             }
           }
@@ -190,6 +217,12 @@ public class AdminLogCreator {
     
     String userDirectory = args[0];
     File pathUserDirecFile=new File(userDirectory);
+    String output = new DateTime( DateTimeZone.UTC ).toString(); 
+    Date date = new Date();
+    
+    SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+    String currentDate=dateformat.format(date);
+    System.out.println("Current DATE: " + currentDate);
     File configDir=new File(userDirectory.split("users")[0] + "config.xml");
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
