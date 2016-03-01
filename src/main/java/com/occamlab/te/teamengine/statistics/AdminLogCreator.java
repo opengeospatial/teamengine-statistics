@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -217,12 +214,6 @@ public class AdminLogCreator {
     
     String userDirectory = args[0];
     File pathUserDirecFile=new File(userDirectory);
-    String output = new DateTime( DateTimeZone.UTC ).toString(); 
-    Date date = new Date();
-    
-    SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-    String currentDate=dateformat.format(date);
-    System.out.println("Current DATE: " + currentDate);
     File configDir=new File(userDirectory.split("users")[0] + "config.xml");
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
