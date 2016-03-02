@@ -3,7 +3,9 @@ This repository provides code to get statistics reports about the tests being ex
 
 We exept to genereate reporets like the following
 
-![Distribution of test per time](diff-test-exec.png)
+![Distribution of test in specific time](diff-test-exec.png)
+
+![Distribution of a test per time](exec-test-over-time.png)
 
 
 
