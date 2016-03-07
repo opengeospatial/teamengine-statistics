@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.ParseException;
 import java.util.Arrays;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -24,6 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 public class AdminLogCreator {
 
@@ -56,6 +58,8 @@ public class AdminLogCreator {
           Arrays.sort(dirs);
           for (int j = 0; j < dirs.length; j++) {
             if (new File(new File(new File(logDir, rootDirs[i]), dirs[j]), "session.xml").exists()) {
+            	
+            try {
               File sessionFile = new File(new File(new File(logDir, rootDirs[i]), dirs[j]), "session.xml");
               DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
               dbf.setNamespaceAware(true);
@@ -67,10 +71,10 @@ public class AdminLogCreator {
             	  if(session.getAttribute("date") !=null && session.getAttribute("date") !=""){
             		  date=session.getAttribute("date");
             	  } 
-            	  try {
+            	  date=null;
                 Path file = sessionFile.toPath();
                 BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
-                DateTime fileCreationTime = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss").parseDateTime(date).withZone(DateTimeZone.getDefault());
+                DateTime fileCreationTime = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss").parseDateTime(date);
                 DateTime currentTime = DateTime.now();
                 int countDay = Days.daysBetween(fileCreationTime, currentTime).getDays();
                 if (countDay <= 30) {
@@ -88,12 +92,26 @@ public class AdminLogCreator {
                 } else {
                   setCountAllTime();
                 }
-              } catch (Exception e) {
-            	  System.out.println(" Invalid date exception occured : ");
-					e.printStackTrace();
+              }
+            } catch (SAXParseException pe) {
+				System.out.println("Error: Unable to parse xml >>");
+
+            	System.out.println("   Public ID: "+pe.getPublicId());
+                System.out.println("   System ID: "+pe.getSystemId());
+                System.out.println("   Line number: "+pe.getLineNumber());
+                System.out.println("   Column number: "+pe.getColumnNumber());
+                System.out.println("   Message: "+pe.getMessage());
+            	System.exit(1);
+            	}
+	            catch (NullPointerException npe) {
+					System.out.println("Error:Mandatory values are Null >> "+ npe.getMessage());
 					System.exit(1);
-  				}
-            } 
+				}
+	            catch (Exception e) {
+	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
+	            	e.printStackTrace();
+	            	System.exit(1);
+				}
             }
           }
         }
@@ -116,6 +134,8 @@ public class AdminLogCreator {
           Arrays.sort(dirs);
           for (int j = 0; j < dirs.length; j++) {
             if (new File(new File(new File(logDir, rootDirs[i]), dirs[j]), "session.xml").exists()) {
+            	
+            try {
               File sessionFile = new File(new File(new File(logDir, rootDirs[i]), dirs[j]), "session.xml");
               DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
               dbf.setNamespaceAware(true);
@@ -127,7 +147,7 @@ public class AdminLogCreator {
             	  if(session.getAttribute("date") !=null && session.getAttribute("date") !=""){
             		  date=session.getAttribute("date");
             	  } 
-            	  try {
+            	  
                 Path file = sessionFile.toPath();
                 BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
                 DateTime fileCreationTime = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss").parseDateTime(date).withZone(DateTimeZone.getDefault());
@@ -142,12 +162,27 @@ public class AdminLogCreator {
                 } else {
                   innercountAllTime = 1;
                 }
-            	  } catch (Exception e) {
-    					System.out.println(" Invalid date exception occured : ");
-    					e.printStackTrace();
-    					System.exit(1);
-    				}
+            	  
               }
+            } catch (SAXParseException pe) {
+				System.out.println("Error: Unable to parse xml >>");
+
+            	System.out.println("   Public ID: "+pe.getPublicId());
+                System.out.println("   System ID: "+pe.getSystemId());
+                System.out.println("   Line number: "+pe.getLineNumber());
+                System.out.println("   Column number: "+pe.getColumnNumber());
+                System.out.println("   Message: "+pe.getMessage());
+            	System.exit(1);
+            	}
+	            catch (NullPointerException npe) {
+					System.out.println("Error:Mandatory values are Null >> "+ npe.getMessage());
+					System.exit(1);
+				}
+	            catch (Exception e) {
+	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
+	            	e.printStackTrace();
+	            	System.exit(1);
+				}
             }
           }
         }
@@ -215,6 +250,8 @@ public class AdminLogCreator {
     String userDirectory = args[0];
     File pathUserDirecFile=new File(userDirectory);
     File configDir=new File(userDirectory.split("users")[0] + "config.xml");
+    
+    try{
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
     Document doc = dBuilder.parse(configDir);
@@ -260,6 +297,21 @@ public class AdminLogCreator {
     System.out.print("\t\t|\tLast Year:" + adminLogCreator.getCountLastYear());
     System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime());
     }
+    } catch (SAXParseException pe) {
+		System.out.println("Error: Unable to parse xml >>");
+
+    	System.out.println("   Public ID: "+pe.getPublicId());
+        System.out.println("   System ID: "+pe.getSystemId());
+        System.out.println("   Line number: "+pe.getLineNumber());
+        System.out.println("   Column number: "+pe.getColumnNumber());
+        System.out.println("   Message: "+pe.getMessage());
+    	System.exit(1);
+    	}
+        catch (Exception e) {
+        	System.out.println("Error: exception occured in main method: " + "' "+ e.getMessage() + " '");
+        	e.printStackTrace();
+        	System.exit(1);
+		}
   }
 }
 
