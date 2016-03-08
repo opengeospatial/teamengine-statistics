@@ -1,4 +1,4 @@
-package com.occamlab.te.teamengine.statistics;
+package org.opengis.te.stats;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class UpdateSession {
+public class StatisticsCreator {
 	static String currentDate;
 	public static ArrayList<String> updatedList= new ArrayList<String>();
 	

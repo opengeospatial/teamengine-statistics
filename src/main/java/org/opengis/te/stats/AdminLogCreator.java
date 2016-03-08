@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.occamlab.te.teamengine.statistics;
+package org.opengis.te.stats;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,7 +71,7 @@ public class AdminLogCreator {
             	  if(session.getAttribute("date") !=null && session.getAttribute("date") !=""){
             		  date=session.getAttribute("date");
             	  } 
-            	  date=null;
+            	  
                 Path file = sessionFile.toPath();
                 BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
                 DateTime fileCreationTime = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss").parseDateTime(date);
@@ -109,7 +109,7 @@ public class AdminLogCreator {
 				}
 	            catch (Exception e) {
 	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
-	            	e.printStackTrace();
+//	            	e.printStackTrace();
 	            	System.exit(1);
 				}
             }
@@ -180,7 +180,7 @@ public class AdminLogCreator {
 				}
 	            catch (Exception e) {
 	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
-	            	e.printStackTrace();
+//	            	e.printStackTrace();
 	            	System.exit(1);
 				}
             }
@@ -309,7 +309,7 @@ public class AdminLogCreator {
     	}
         catch (Exception e) {
         	System.out.println("Error: exception occured in main method: " + "' "+ e.getMessage() + " '");
-        	e.printStackTrace();
+//        	e.printStackTrace();
         	System.exit(1);
 		}
   }
