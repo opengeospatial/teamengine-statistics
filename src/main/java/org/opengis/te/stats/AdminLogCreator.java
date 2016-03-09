@@ -48,7 +48,8 @@ public class AdminLogCreator {
   }
 
   public void processForExecutions(String testName, File logDir) throws SAXException, ParserConfigurationException, IOException {
-    setTestName(testName);
+    
+	  setTestName(testName);
     String[] rootDirs = logDir.list();
     if (null != rootDirs && 0 < rootDirs.length) {
       Arrays.sort(rootDirs);
@@ -70,7 +71,9 @@ public class AdminLogCreator {
             	  String date=null;
             	  if(session.getAttribute("date") !=null && session.getAttribute("date") !=""){
             		  date=session.getAttribute("date");
-            	  } 
+            	  } else {
+            		  throw new NullPointerException("Date attribute is null in : '" + sessionFile + "'");
+            	  }
             	  
                 Path file = sessionFile.toPath();
                 BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
@@ -104,13 +107,13 @@ public class AdminLogCreator {
             	System.exit(1);
             	}
 	            catch (NullPointerException npe) {
-					System.out.println("Error:Mandatory values are Null >> "+ npe.getMessage());
-					System.exit(1);
+					System.out.println("Error:"+ npe.getMessage());
+//					System.exit(1);
 				}
 	            catch (Exception e) {
 	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
 //	            	e.printStackTrace();
-	            	System.exit(1);
+//	            	System.exit(1);
 				}
             }
           }
@@ -146,7 +149,9 @@ public class AdminLogCreator {
             	  String date=null;
             	  if(session.getAttribute("date") !=null && session.getAttribute("date") !=""){
             		  date=session.getAttribute("date");
-            	  } 
+            	  } else {
+            		  throw new NullPointerException("Date attribute is null in : '" + sessionFile + "'");
+            	  }
             	  
                 Path file = sessionFile.toPath();
                 BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
@@ -172,16 +177,16 @@ public class AdminLogCreator {
                 System.out.println("   Line number: "+pe.getLineNumber());
                 System.out.println("   Column number: "+pe.getColumnNumber());
                 System.out.println("   Message: "+pe.getMessage());
-            	System.exit(1);
+//            	System.exit(1);
             	}
 	            catch (NullPointerException npe) {
-					System.out.println("Error:Mandatory values are Null >> "+ npe.getMessage());
-					System.exit(1);
+	            	System.out.println("Error:"+ npe.getMessage());
+//					System.exit(1);
 				}
 	            catch (Exception e) {
 	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
 //	            	e.printStackTrace();
-	            	System.exit(1);
+//	            	System.exit(1);
 				}
             }
           }
@@ -249,7 +254,9 @@ public class AdminLogCreator {
     
     String userDirectory = args[0];
     File pathUserDirecFile=new File(userDirectory);
-    File configDir=new File(userDirectory.split("users")[0] + "config.xml");
+    String[] splitPath = userDirectory.split(File.separator);
+    String splitFrom=splitPath[splitPath.length-1];
+    File configDir=new File(userDirectory.split(splitFrom)[0] + "config.xml");
     
     try{
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -275,7 +282,7 @@ public class AdminLogCreator {
     System.out.print("Last Month:" + adminLogCreator.getCountLastMonth());
     System.out.print("\t|\tLast 3 Months:" + adminLogCreator.getCountLast3Month());
     System.out.print("\t\t|\tLast Year:" + adminLogCreator.getCountLastYear());
-    System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime());
+    System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime() + "\n");
     }
     System.out.println("\n\tTest Statistics by Users");
     for (int temp = 0; temp < nList.getLength(); temp++) {
@@ -295,7 +302,7 @@ public class AdminLogCreator {
     System.out.print("Last Month:" + adminLogCreator.getCountLastMonth());
     System.out.print("\t|\tLast 3 Months:" + adminLogCreator.getCountLast3Month());
     System.out.print("\t\t|\tLast Year:" + adminLogCreator.getCountLastYear());
-    System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime());
+    System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime() + "\n");
     }
     } catch (SAXParseException pe) {
 		System.out.println("Error: Unable to parse xml >>");
@@ -305,12 +312,12 @@ public class AdminLogCreator {
         System.out.println("   Line number: "+pe.getLineNumber());
         System.out.println("   Column number: "+pe.getColumnNumber());
         System.out.println("   Message: "+pe.getMessage());
-    	System.exit(1);
+//    	System.exit(1);
     	}
         catch (Exception e) {
         	System.out.println("Error: exception occured in main method: " + "' "+ e.getMessage() + " '");
 //        	e.printStackTrace();
-        	System.exit(1);
+//        	System.exit(1);
 		}
   }
 }
