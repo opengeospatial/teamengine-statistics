@@ -97,16 +97,16 @@ public class AdminLogCreator {
                 }
               }
             } catch (SAXParseException pe) {
-            	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
+//            	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
 
 //            	System.exit(1);
             	}
 	            catch (NullPointerException npe) {
-					System.out.println("Error:"+ npe.getMessage());
+//					System.out.println("Error:"+ npe.getMessage());
 //					System.exit(1);
 				}
 	            catch (Exception e) {
-	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
+//	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
 //	            	e.printStackTrace();
 //	            	System.exit(1);
 				}
@@ -165,16 +165,16 @@ public class AdminLogCreator {
             	  
               }
             } catch (SAXParseException pe) {
-            	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
+//            	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
 
 //            	System.exit(1);
             	}
 	            catch (NullPointerException npe) {
-	            	System.out.println("Error:"+ npe.getMessage());
+//	            	System.out.println("Error:"+ npe.getMessage());
 //					System.exit(1);
 				}
 	            catch (Exception e) {
-	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
+//	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
 //	            	e.printStackTrace();
 //	            	System.exit(1);
 				}
@@ -295,12 +295,12 @@ public class AdminLogCreator {
     System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime() + "\n");
     }
     } catch (SAXParseException pe) {
-    	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
+//    	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
 
 //    	System.exit(1);
     	}
         catch (Exception e) {
-        	System.out.println("Error: exception occured in main method: " + "' "+ e.getMessage() + " '");
+//        	System.out.println("Error: exception occured in main method: " + "' "+ e.getMessage() + " '");
 //        	e.printStackTrace();
 //        	System.exit(1);
 		}
