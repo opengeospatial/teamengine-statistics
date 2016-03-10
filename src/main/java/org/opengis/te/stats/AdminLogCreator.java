@@ -97,14 +97,9 @@ public class AdminLogCreator {
                 }
               }
             } catch (SAXParseException pe) {
-				System.out.println("Error: Unable to parse xml >>");
+            	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
 
-            	System.out.println("   Public ID: "+pe.getPublicId());
-                System.out.println("   System ID: "+pe.getSystemId());
-                System.out.println("   Line number: "+pe.getLineNumber());
-                System.out.println("   Column number: "+pe.getColumnNumber());
-                System.out.println("   Message: "+pe.getMessage());
-            	System.exit(1);
+//            	System.exit(1);
             	}
 	            catch (NullPointerException npe) {
 					System.out.println("Error:"+ npe.getMessage());
@@ -170,13 +165,8 @@ public class AdminLogCreator {
             	  
               }
             } catch (SAXParseException pe) {
-				System.out.println("Error: Unable to parse xml >>");
+            	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
 
-            	System.out.println("   Public ID: "+pe.getPublicId());
-                System.out.println("   System ID: "+pe.getSystemId());
-                System.out.println("   Line number: "+pe.getLineNumber());
-                System.out.println("   Column number: "+pe.getColumnNumber());
-                System.out.println("   Message: "+pe.getMessage());
 //            	System.exit(1);
             	}
 	            catch (NullPointerException npe) {
@@ -305,13 +295,8 @@ public class AdminLogCreator {
     System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime() + "\n");
     }
     } catch (SAXParseException pe) {
-		System.out.println("Error: Unable to parse xml >>");
+    	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
 
-    	System.out.println("   Public ID: "+pe.getPublicId());
-        System.out.println("   System ID: "+pe.getSystemId());
-        System.out.println("   Line number: "+pe.getLineNumber());
-        System.out.println("   Column number: "+pe.getColumnNumber());
-        System.out.println("   Message: "+pe.getMessage());
 //    	System.exit(1);
     	}
         catch (Exception e) {
