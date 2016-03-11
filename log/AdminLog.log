@@ -1,0 +1,156 @@
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0003/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0004/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0007/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0002/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0006/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0005/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0006/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0007/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0008/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0010/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0011/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0001/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0002/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0013/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0015/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0001/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0003/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0004/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0005/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForExecutions
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0003/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0004/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0007/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0002/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0006/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0005/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0006/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0007/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0008/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0010/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0011/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0001/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/Felipe_souza/s0002/session.xml'
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:18 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:19 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0013/session.xml'
+Mar 11, 2016 7:44:19 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0015/session.xml'
+Mar 11, 2016 7:44:19 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:19 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:19 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0001/session.xml'
+Mar 11, 2016 7:44:19 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0003/session.xml'
+Mar 11, 2016 7:44:19 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0004/session.xml'
+Mar 11, 2016 7:44:19 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error:Date attribute is null in : '/home/keshav/TE_BASE/users_prod/rsiogctest/s0005/session.xml'
+Mar 11, 2016 7:44:19 PM org.opengis.te.stats.AdminLogErrorHandler fatalError
+SEVERE: The reference to entity "request" must end with the ';' delimiter.
+Mar 11, 2016 7:44:19 PM org.opengis.te.stats.AdminLogCreator processForUsers
+SEVERE: Error: Unable to parse xml >> Public ID: null, System ID: file:/home/keshav/TE_BASE/users_prod/IGMueTo/s0008/session.xml, Line number: 3, Column number: 87, Message: The reference to entity "request" must end with the ';' delimiter.

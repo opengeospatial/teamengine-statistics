@@ -10,8 +10,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.ParseException;
 import java.util.Arrays;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,6 +27,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -38,6 +42,8 @@ public class AdminLogCreator {
   int innercountLast3Month;
   int innercountLastYear;
   int innercountAllTime;
+
+  static Logger logger = Logger.getLogger(AdminLogCreator.class.getName());
   
   public AdminLogCreator() {
     testName = null;
@@ -63,8 +69,10 @@ public class AdminLogCreator {
             try {
               File sessionFile = new File(new File(new File(logDir, rootDirs[i]), dirs[j]), "session.xml");
               DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+              dbf.setValidating(false);
               dbf.setNamespaceAware(true);
               DocumentBuilder db = dbf.newDocumentBuilder();
+              db.setErrorHandler(new AdminLogErrorHandler());
               Document doc = db.parse(sessionFile);
               Element session = (Element) (doc.getElementsByTagName("session").item(0));
               if ((session.getAttribute("sourcesId")).contains(testName)) {
@@ -97,18 +105,13 @@ public class AdminLogCreator {
                 }
               }
             } catch (SAXParseException pe) {
-//            	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
-
-//            	System.exit(1);
+            		logger.log(Level.SEVERE, "Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
             	}
-	            catch (NullPointerException npe) {
-//					System.out.println("Error:"+ npe.getMessage());
-//					System.exit(1);
+            	catch (NullPointerException npe) {
+	            	logger.log(Level.SEVERE, "Error:"+ npe.getMessage());
 				}
 	            catch (Exception e) {
-//	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
-//	            	e.printStackTrace();
-//	            	System.exit(1);
+	            	logger.log(Level.SEVERE, "Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
 				}
             }
           }
@@ -136,8 +139,10 @@ public class AdminLogCreator {
             try {
               File sessionFile = new File(new File(new File(logDir, rootDirs[i]), dirs[j]), "session.xml");
               DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+              dbf.setValidating(false);
               dbf.setNamespaceAware(true);
               DocumentBuilder db = dbf.newDocumentBuilder();
+              db.setErrorHandler(new AdminLogErrorHandler());
               Document doc = db.parse(sessionFile);
               Element session = (Element) (doc.getElementsByTagName("session").item(0));
               if ((session.getAttribute("sourcesId")).contains(testName)) {
@@ -165,18 +170,13 @@ public class AdminLogCreator {
             	  
               }
             } catch (SAXParseException pe) {
-//            	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
-
-//            	System.exit(1);
+            		logger.log(Level.SEVERE, "Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
             	}
 	            catch (NullPointerException npe) {
-//	            	System.out.println("Error:"+ npe.getMessage());
-//					System.exit(1);
+	            	logger.log(Level.SEVERE, "Error:"+ npe.getMessage());
 				}
 	            catch (Exception e) {
-//	            	System.out.println("Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
-//	            	e.printStackTrace();
-//	            	System.exit(1);
+	            	logger.log(Level.SEVERE, "Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
 				}
             }
           }
@@ -242,13 +242,19 @@ public class AdminLogCreator {
 
   public static void main(String[] args) throws SAXException, ParserConfigurationException, IOException {
     
-    String userDirectory = args[0];
+	String userDirectory = args[0];
     File pathUserDirecFile=new File(userDirectory);
     String[] splitPath = userDirectory.split(File.separator);
     String splitFrom=splitPath[splitPath.length-1];
     File configDir=new File(userDirectory.split(splitFrom)[0] + "config.xml");
     
     try{
+    	File logDir=new File(System.getProperty("user.dir"),"log"+File.separator+"AdminLog.log");
+    	FileHandler logFile=new FileHandler(logDir.toString());
+    	logger.setUseParentHandlers(false);
+    	logFile.setFormatter(new SimpleFormatter());
+    	logger.addHandler(logFile);
+    	
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
     Document doc = dBuilder.parse(configDir);
@@ -295,15 +301,29 @@ public class AdminLogCreator {
     System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime() + "\n");
     }
     } catch (SAXParseException pe) {
-//    	System.out.println("Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
-
-//    	System.exit(1);
+    	logger.log(Level.SEVERE, "Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
     	}
         catch (Exception e) {
-//        	System.out.println("Error: exception occured in main method: " + "' "+ e.getMessage() + " '");
-//        	e.printStackTrace();
-//        	System.exit(1);
+        	logger.log(Level.SEVERE, "Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
 		}
   }
+}
+
+
+class AdminLogErrorHandler implements ErrorHandler {
+
+	static	Logger logger=Logger.getLogger(AdminLogCreator.class.getName());
+	
+    public void warning(SAXParseException e) throws SAXException {
+    	logger.log(Level.SEVERE,e.getMessage());
+    }
+
+    public void error(SAXParseException e) throws SAXException {
+		logger.log(Level.SEVERE,e.getMessage());
+    }
+
+    public void fatalError(SAXParseException e) throws SAXException {
+		logger.log(Level.SEVERE,e.getMessage());
+    }
 }
 
