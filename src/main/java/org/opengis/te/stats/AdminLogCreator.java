@@ -247,10 +247,11 @@ public class AdminLogCreator {
     String[] splitPath = userDirectory.split(File.separator);
     String splitFrom=splitPath[splitPath.length-1];
     File configDir=new File(userDirectory.split(splitFrom)[0] + "config.xml");
+    FileHandler logFile = null;
     
     try{
     	File logDir=new File(System.getProperty("user.dir"),"log"+File.separator+"AdminLog.log");
-    	FileHandler logFile=new FileHandler(logDir.toString());
+    	logFile=new FileHandler(logDir.toString());
     	logger.setUseParentHandlers(false);
     	logFile.setFormatter(new SimpleFormatter());
     	logger.addHandler(logFile);
@@ -304,8 +305,15 @@ public class AdminLogCreator {
     	logger.log(Level.SEVERE, "Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
     	}
         catch (Exception e) {
-        	logger.log(Level.SEVERE, "Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
+        	logger.log(Level.SEVERE, "Error: In main method Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
+        	e.printStackTrace();
 		}
+    	finally {
+			 if(logFile != null){
+				 	logFile.close();
+			 }
+			 
+	  }
   }
 }
 
