@@ -24,6 +24,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -250,8 +251,16 @@ public class AdminLogCreator {
     FileHandler logFile = null;
     
     try{
-    	File logDir=new File(System.getProperty("user.dir"),"log"+File.separator+"AdminLog.log");
-    	logFile=new FileHandler(logDir.toString());
+    	DateTime logDate = new DateTime();
+    	DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+    	String loggerDate = formatter.print(logDate);
+    	File adminLogDir=new File(System.getProperty("user.dir"),"log");
+    	File adminLogFile=new File(System.getProperty("user.dir"),"log"+File.separator+"AdminLog-" + loggerDate +".log");
+    	
+    	if(!adminLogDir.exists()){
+    		adminLogDir.mkdir();
+    	} 
+    	logFile=new FileHandler(adminLogFile.toString(),true);
     	logger.setUseParentHandlers(false);
     	logFile.setFormatter(new SimpleFormatter());
     	logger.addHandler(logFile);
