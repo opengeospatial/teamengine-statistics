@@ -143,7 +143,7 @@ public class TEReport {
 			FileWriter resultsWritter=new FileWriter(reportFileName, true);
 			outputFile = new BufferedWriter(resultsWritter);
 			// "userName | session | date | testName | overallResult"
-			String result = this.getUsername() + "," + this.getSession() + "," + this.getDate() + "," + this.getTest() + "," + getResultDescription(this.getResult()) + this.getResult();
+			String result = this.getUsername() + "," + this.getSession() + "," + this.getDate() + "," + this.getTest() + "," + getResultDescription(this.getResult());
 			outputFile.newLine();
 			outputFile.write(result);
 
