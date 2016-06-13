@@ -2,13 +2,21 @@ package org.opengis.te.stats;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.NoSuchElementException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.joda.time.DateTime;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -39,7 +47,7 @@ public class TEReport {
 				for (int j = 0; j < sessionList.length; j++) {
 
 					//	Set Session
-					setSession(sessionList[i]);
+					setSession(sessionList[j]);
 
 					if (new File(new File(userDirPath, rootDirs[i]),sessionList[j]).isDirectory() && new File(new File(new File(userDirPath, rootDirs[i]), sessionList[j]), "session.xml").exists()) {
 
@@ -57,7 +65,14 @@ public class TEReport {
 							setSession(sessionElement.getAttribute("id"));
 							setTest(sessionElement.getAttribute("sourcesId"));
 							if (!sessionElement.hasAttribute("date")) {
-								setDate("");
+								Path file = sessionFile.toPath();
+		    	                BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
+		    	                
+		    			        Date dates=new DateTime( attr.creationTime().toString() ).toDate();
+		    			        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		    			        String fileCreatinDate=dateFormat.format(dates);
+//		    					session.setAttribute("date", currentdate);
+								setDate(fileCreatinDate);
 							} else {
 								setDate(sessionElement.getAttribute("date"));
 							}
@@ -102,33 +117,42 @@ public class TEReport {
 			DocumentBuilder docBuilder = dbf.newDocumentBuilder();
 			Document doc = docBuilder.parse(logFile);
 
-			NodeList logElementList  = doc.getElementsByTagName("log");
+			NodeList logElementList = doc.getElementsByTagName("log");
 
 			Element logElement = (Element) logElementList.item(0);
 			NodeList testResult = logElement.getElementsByTagName("endtest");
 
-			if(testResult.getLength() == 0){
-				setResult("7");
+			if (testResult.getLength() == 0) {
+				throw new NoSuchElementException(
+						"The 'endtest' element not found in log file.");
 			} else {
 				Element resultStatus = (Element) testResult.item(0);
-				
-				setResult(resultStatus.getAttribute("result"));	
+
+				if (resultStatus.hasAttribute("result")
+						&& !resultStatus.getAttribute("result").equals("")) {
+					setResult(resultStatus.getAttribute("result"));
+				} else {
+					throw new RuntimeException(
+							"The 'result' attribute not found or having the NULL value in log file.");
+
+				}
 			}
 		} catch (SAXParseException pe) {
-			System.out.println("Error: Unable to parse xml >>");
+			
+			setResult("Error:" + pe.getMessage());
 
-			System.out.println("   Public ID: " + pe.getPublicId());
-			System.out.println("   System ID: " + pe.getSystemId());
-			System.out.println("   Line number: " + pe.getLineNumber());
-			System.out.println("   Column number: " + pe.getColumnNumber());
-			System.out.println("   Message: " + pe.getMessage());
-			System.exit(1);
+		} catch (FileNotFoundException fnfe) {
+			
+			setResult("Error: The log file not exist.");
+
 		} catch (NullPointerException npe) {
-			System.out.println("Error:Mandatory values are Null >> " + npe.getMessage());
-			System.exit(1);
+
+			setResult("Error:" + npe.getLocalizedMessage());
+
 		} catch (Exception e) {
-			System.out.println("Execption occured: "+ e.toString());
-			System.exit(1);
+
+			setResult("Error: " + e.getMessage());
+
 		}
 
 
@@ -182,7 +206,7 @@ public class TEReport {
 		try{
 			FileWriter resultsWritter=new FileWriter(finalResult, true);
 			outputFile = new BufferedWriter(resultsWritter);
-			outputFile.write("userName | session | date | testName | overallResult");
+			outputFile.write("userName,session,date,testName,overallResult");
 			outputFile.close();
 		}catch(IOException io){
 			System.out.println("Exception while writting file.");
@@ -198,6 +222,7 @@ public class TEReport {
 
 	
 	public String getResultDescription(String result) {
+		
 		if (result.equals("-1")) {
 			return "CONTINUE";
 		} else if (result.equals("0")) {
@@ -212,11 +237,12 @@ public class TEReport {
 			return "WARNING";
 		} else if (result.equals("5")) {
 			return "INHERITED FAILURE";
-		} else if (result.equals("7")) {
-			return "NOT Completed";
-		} else {
+		} else if (result.equals("6")) {
 			return "FAIL";
+		} else {
+			return result;
 		}
+		
 	}
 	
 	public String getUsername() {
