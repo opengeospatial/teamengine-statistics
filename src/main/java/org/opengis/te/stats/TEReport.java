@@ -1,18 +1,21 @@
 package org.opengis.te.stats;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -20,6 +23,8 @@ import org.joda.time.DateTime;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 public class TEReport {
@@ -30,6 +35,8 @@ public class TEReport {
 	String test;
 	String result;
 
+	public static HashMap<String, String> properties = new HashMap<String, String>();
+	
 	public void processResult(File userDirPath, File reportFileName) {
 
 		String[] rootDirs = userDirPath.list();
@@ -115,6 +122,8 @@ public class TEReport {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = dbf.newDocumentBuilder();
+			dbf.setValidating(false);
+			docBuilder.setErrorHandler(new TEReportErrorHandler());
 			Document doc = docBuilder.parse(logFile);
 
 			NodeList logElementList = doc.getElementsByTagName("log");
@@ -167,7 +176,7 @@ public class TEReport {
 			FileWriter resultsWritter=new FileWriter(reportFileName, true);
 			outputFile = new BufferedWriter(resultsWritter);
 			// "userName | session | date | testName | overallResult"
-			String result = this.getUsername() + "," + this.getSession() + "," + this.getDate() + "," + this.getTest() + "," + getResultDescription(this.getResult());
+			String result = this.getUsername() + "," + this.getSession() + "," + this.getDate() + "," + getTestShortName(this.getTest()) + "," + getResultDescription(this.getResult());
 			outputFile.newLine();
 			outputFile.write(result);
 
@@ -179,12 +188,67 @@ public class TEReport {
 
 	}
 	
+	/*
+	 * This method will return the short name of test.
+	 */
+	public String getTestShortName(String test) {
+
+		String str1 = test.substring(0, test.lastIndexOf("_"));
+		String str2 = str1.substring(str1.indexOf("_") + 1);
+		String shortName = (String) properties.get(str2);
+		// Check if the property is not exist in map then return as it is.
+		if (shortName == null) {
+			return test;
+		}
+		return shortName;
+	}
+	
+	public void loadProperties(){
+		InputStream input = null;
+		/*
+		 * Load properties from the property file(resources/config.properties).  
+		 */
+		try {
+			String filename = "config.properties";
+			ClassLoader classLoader = getClass().getClassLoader();
+//			File file = new File(classLoader.getResource(filename).getFile());
+			
+//			input = TEReport.class.getClassLoader().getResourceAsStream(filename);
+			input = getClass().getResourceAsStream("/config.properties");
+//			input = classLoader.getResourceAsStream("config.properties");
+			if(input == null){
+				System.out.println("Unable to find the config.properties.");
+				return;
+			}
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(input));
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				String[] property = line.split("=");
+			//	update properties map
+				properties.put(property[0], property[1]);
+			}
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+	}
+	
 	
 	public static void main(String[] args) {
 
 		String userdir = args[0];
 		File userDirPath = new File(userdir);
-
+		
 		//  Create TE Report File
 
 		BufferedWriter outputFile=null;
@@ -214,6 +278,7 @@ public class TEReport {
 		}
 
 		TEReport te = new TEReport();
+		te.loadProperties();
 		te.processResult(userDirPath, finalResult);
 
 		System.out.println("The TE Statistics Report has been successfully generated.");
@@ -285,4 +350,21 @@ public class TEReport {
 		this.result = result;
 	}
 
+}
+
+class TEReportErrorHandler implements ErrorHandler {
+
+	TEReport te = new TEReport();
+	
+    public void warning(SAXParseException e) throws SAXException {
+    	te.setResult("Error: " + e.getMessage());
+    }
+
+    public void error(SAXParseException e) throws SAXException {
+    	te.setResult("Error: " + e.getMessage());
+    }
+
+    public void fatalError(SAXParseException e) throws SAXException {
+    	te.setResult("Error: " + e.getMessage());
+    }
 }
