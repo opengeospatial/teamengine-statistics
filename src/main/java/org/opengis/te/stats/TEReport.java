@@ -3,11 +3,13 @@ package org.opengis.te.stats;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -16,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -24,6 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -64,6 +68,8 @@ public class TEReport {
 
 							DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 							DocumentBuilder docBuilder = dbf.newDocumentBuilder();
+							dbf.setValidating(false);
+							docBuilder.setErrorHandler(new TEReportErrorHandler());
 							Document doc = docBuilder.parse(sessionFile);
 
 							NodeList sessionAttributeList  = doc.getElementsByTagName("session");
@@ -94,20 +100,20 @@ public class TEReport {
 							reportWritter(reportFileName);
 
 						} catch (SAXParseException pe) {
-							System.out.println("Error: Unable to parse xml >>");
+							System.out.println("Error: Unable to parse xml >>" + rootDirs[i]+ "/" + sessionList[j]);
 
 							System.out.println("   Public ID: " + pe.getPublicId());
 							System.out.println("   System ID: " + pe.getSystemId());
 							System.out.println("   Line number: " + pe.getLineNumber());
 							System.out.println("   Column number: " + pe.getColumnNumber());
 							System.out.println("   Message: " + pe.getMessage());
-							System.exit(1);
+//							System.exit(1);
 						} catch (NullPointerException npe) {
-							System.out.println("Error:Mandatory values are Null >> " + npe.getMessage());
-							System.exit(1);
+							System.out.println("Error:Mandatory values are Null >> " + npe.getMessage() + " at ->" + rootDirs[i]+ "/" + sessionList[j]);
+//							System.exit(1);
 						} catch (Exception e) {
-							System.out.println("Execption occured: "+ e.toString());
-							System.exit(1);
+							System.out.println("Execption occured: "+ e.toString() + " at -> "  + rootDirs[i]+ "/" + sessionList[j]);
+//							System.exit(1);
 						}
 					}
 				}
@@ -124,6 +130,10 @@ public class TEReport {
 			DocumentBuilder docBuilder = dbf.newDocumentBuilder();
 			dbf.setValidating(false);
 			docBuilder.setErrorHandler(new TEReportErrorHandler());
+			InputStream inputStream = new FileInputStream(logFile);
+			Reader reader = new InputStreamReader(inputStream, "UTF-8");
+			InputSource is = new InputSource(reader);
+			is.setEncoding("UTF-8");
 			Document doc = docBuilder.parse(logFile);
 
 			NodeList logElementList = doc.getElementsByTagName("log");
@@ -148,19 +158,19 @@ public class TEReport {
 			}
 		} catch (SAXParseException pe) {
 			
-			setResult("Error:" + pe.getMessage());
+			setResult("Error:" + pe.getMessage() + "at -> " + logFile);
 
 		} catch (FileNotFoundException fnfe) {
 			
-			setResult("Error: The log file not exist.");
+			setResult("Error: The log file not exist." + "at -> " + logFile);
 
 		} catch (NullPointerException npe) {
 
-			setResult("Error:" + npe.getLocalizedMessage());
+			setResult("Error:" + npe.getLocalizedMessage() + " at -> " + logFile);
 
 		} catch (Exception e) {
 
-			setResult("Error: " + e.getMessage());
+			setResult("Error: " + e.getMessage()+ "at here-> " + logFile);
 
 		}
 
@@ -209,13 +219,7 @@ public class TEReport {
 		 * Load properties from the property file(resources/config.properties).  
 		 */
 		try {
-			String filename = "config.properties";
-			ClassLoader classLoader = getClass().getClassLoader();
-//			File file = new File(classLoader.getResource(filename).getFile());
-			
-//			input = TEReport.class.getClassLoader().getResourceAsStream(filename);
 			input = getClass().getResourceAsStream("/config.properties");
-//			input = classLoader.getResourceAsStream("config.properties");
 			if(input == null){
 				System.out.println("Unable to find the config.properties.");
 				return;
