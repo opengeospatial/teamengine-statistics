@@ -59,18 +59,21 @@ public class TEReport {
 
 					//	Set Session
 					setSession(sessionList[j]);
-
+					File logFile;
+					File sessionFile;
 					if (new File(new File(userDirPath, rootDirs[i]),sessionList[j]).isDirectory() && new File(new File(new File(userDirPath, rootDirs[i]), sessionList[j]), "session.xml").exists()) {
 
 						try {
-							File logFile = new File(new File(new File(userDirPath, rootDirs[i]), sessionList[j]),"log.xml");
-							File sessionFile = new File(new File(new File(userDirPath, rootDirs[i]), sessionList[j]),"session.xml");
+							logFile = new File(new File(new File(userDirPath, rootDirs[i]), sessionList[j]),"log.xml");
+							sessionFile = new File(new File(new File(userDirPath, rootDirs[i]), sessionList[j]),"session.xml");
 
 							DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-							DocumentBuilder docBuilder = dbf.newDocumentBuilder();
 							dbf.setValidating(false);
+							dbf.setNamespaceAware(true);
+							DocumentBuilder docBuilder = dbf.newDocumentBuilder();
 							docBuilder.setErrorHandler(new TEReportErrorHandler());
-							Document doc = docBuilder.parse(sessionFile);
+							InputStream in = new FileInputStream(sessionFile);
+							Document doc = docBuilder.parse(new InputSource(new InputStreamReader(in, "UTF-8")));
 
 							NodeList sessionAttributeList  = doc.getElementsByTagName("session");
 							Element sessionElement = (Element) sessionAttributeList.item(0);
@@ -100,20 +103,14 @@ public class TEReport {
 							reportWritter(reportFileName);
 
 						} catch (SAXParseException pe) {
-							System.out.println("Error: Unable to parse xml >>" + rootDirs[i]+ "/" + sessionList[j]);
-
-							System.out.println("   Public ID: " + pe.getPublicId());
-							System.out.println("   System ID: " + pe.getSystemId());
-							System.out.println("   Line number: " + pe.getLineNumber());
-							System.out.println("   Column number: " + pe.getColumnNumber());
-							System.out.println("   Message: " + pe.getMessage());
-//							System.exit(1);
+							String error = "Error: " + pe.getMessage() + " at ->" + rootDirs[i]+ "/" + sessionList[j];
+							logError(error, reportFileName);
 						} catch (NullPointerException npe) {
-							System.out.println("Error:Mandatory values are Null >> " + npe.getMessage() + " at ->" + rootDirs[i]+ "/" + sessionList[j]);
-//							System.exit(1);
-						} catch (Exception e) {
-							System.out.println("Execption occured: "+ e.toString() + " at -> "  + rootDirs[i]+ "/" + sessionList[j]);
-//							System.exit(1);
+							String error = "Error:Mandatory values are Null >> " + npe.getMessage() + " at ->" + rootDirs[i]+ "/" + sessionList[j];
+							logError(error, reportFileName);
+						} catch (Exception e) {							
+							String error = "Execption occured: "+ e.toString() + " at -> "  + rootDirs[i]+ "/" + sessionList[j];
+							logError(error, reportFileName);
 						}
 					}
 				}
@@ -122,6 +119,24 @@ public class TEReport {
 		}
 	}
 
+	
+	public void logError(String error, File reportFileName){
+		
+		BufferedWriter outputFile=null;
+		//	    Write the result into file;
+		try{
+			FileWriter resultsWritter=new FileWriter(reportFileName, true);
+			outputFile = new BufferedWriter(resultsWritter);
+			
+			outputFile.newLine();
+			outputFile.write(error);
+
+			outputFile.close();
+		}catch(IOException io){
+			System.out.println("Exception while writting file.");
+			io.printStackTrace();
+		}
+	}
 	
 	public void getFinalResult(File logFile){
 
