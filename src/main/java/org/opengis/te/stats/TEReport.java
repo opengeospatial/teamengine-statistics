@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -183,8 +185,15 @@ public class TEReport {
 		try{
 			FileWriter resultsWritter=new FileWriter(reportFileName, true);
 			outputFile = new BufferedWriter(resultsWritter);
+			
+			String sessionDate = this.getDate().trim().replaceAll(" +", " ");
+			DateTime dateTime = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss").parseDateTime(sessionDate);
+			DecimalFormat df = new DecimalFormat("00");
+			int year = dateTime.getYear();
+			String month = df.format(dateTime.getMonthOfYear());
+			
 			// "userName | session | date | testName | overallResult"
-			String result = this.getUsername() + "," + this.getSession() + "," + this.getDate() + "," + getTestShortName(this.getTest()) + "," + getResultDescription(this.getResult());
+			String result = this.getUsername() + "," + this.getSession() + "," + sessionDate + "," + year + "," + month + "," + getTestShortName(this.getTest()) + "," + getResultDescription(this.getResult());
 			outputFile.newLine();
 			outputFile.write(result);
 
@@ -272,7 +281,7 @@ public class TEReport {
 		try{
 			FileWriter resultsWritter=new FileWriter(finalResult, true);
 			outputFile = new BufferedWriter(resultsWritter);
-			outputFile.write("userName,session,date,testName,overallResult");
+			outputFile.write("userName,session,date,year,month,testName,overallResult");
 			outputFile.close();
 		}catch(IOException io){
 			System.out.println("Exception while writting file.");
