@@ -103,14 +103,11 @@ public class TEReport {
 							reportWritter(reportFileName);
 
 						} catch (SAXParseException pe) {
-							String error = "Error: " + pe.getMessage() + " at ->" + rootDirs[i]+ "/" + sessionList[j];
-							logError(error, reportFileName);
+							System.out.println("INVALID XML CHAR IN SESSION at ->" + rootDirs[i]+ "/" + sessionList[j]);
 						} catch (NullPointerException npe) {
-							String error = "Error:Mandatory values are Null >> " + npe.getMessage() + " at ->" + rootDirs[i]+ "/" + sessionList[j];
-							logError(error, reportFileName);
+							System.out.println("Error:Mandatory values are Null at ->" + rootDirs[i]+ "/" + sessionList[j]);
 						} catch (Exception e) {							
-							String error = "Execption occured: "+ e.toString() + " at -> "  + rootDirs[i]+ "/" + sessionList[j];
-							logError(error, reportFileName);
+							System.out.println("Execption occured: "+ e.toString() + " at -> "  + rootDirs[i]+ "/" + sessionList[j]);
 						}
 					}
 				}
@@ -119,25 +116,9 @@ public class TEReport {
 		}
 	}
 
-	
-	public void logError(String error, File reportFileName){
-		
-		BufferedWriter outputFile=null;
-		//	    Write the result into file;
-		try{
-			FileWriter resultsWritter=new FileWriter(reportFileName, true);
-			outputFile = new BufferedWriter(resultsWritter);
-			
-			outputFile.newLine();
-			outputFile.write(error);
-
-			outputFile.close();
-		}catch(IOException io){
-			System.out.println("Exception while writting file.");
-			io.printStackTrace();
-		}
-	}
-	
+	/*
+	 * Get the overall result from the log file.
+	 */
 	public void getFinalResult(File logFile){
 
 		try {
@@ -172,27 +153,29 @@ public class TEReport {
 				}
 			}
 		} catch (SAXParseException pe) {
-			
-			setResult("Error:" + pe.getMessage() + "at -> " + logFile);
+			setResult("Not Found");
+			System.out.println("XML DOC ERROR at -> " + logFile);
 
 		} catch (FileNotFoundException fnfe) {
-			
-			setResult("Error: The log file not exist." + "at -> " + logFile);
+			setResult("Not Found");
+			System.out.println("LOG FILE NOT FOUND at -> " + logFile);
 
 		} catch (NullPointerException npe) {
-
-			setResult("Error:" + npe.getLocalizedMessage() + " at -> " + logFile);
+			setResult("Not Found");
+			System.out.println("Mandatory values are null"+npe.getCause()+" at -> " + logFile);
 
 		} catch (Exception e) {
-
-			setResult("Error: " + e.getMessage()+ "at here-> " + logFile);
+			setResult("Not Found");
+			System.out.println("Error: " + e.getMessage()+ "at here-> " + logFile);
 
 		}
 
 
 	}
 	
-	
+	/*
+	 * This method will write the result into report file.
+	 */
 	public void reportWritter(File reportFileName){
 
 		BufferedWriter outputFile=null;
@@ -300,7 +283,7 @@ public class TEReport {
 		te.loadProperties();
 		te.processResult(userDirPath, finalResult);
 
-		System.out.println("The TE Statistics Report has been successfully generated.");
+		System.out.println("\nThe TE Statistics Report has been successfully generated.");
 		System.out.println("Here -> " + finalResult);
 	}
 
@@ -372,18 +355,16 @@ public class TEReport {
 }
 
 class TEReportErrorHandler implements ErrorHandler {
-
-	TEReport te = new TEReport();
 	
     public void warning(SAXParseException e) throws SAXException {
-    	te.setResult("Error: " + e.getMessage());
+    	return;
     }
 
     public void error(SAXParseException e) throws SAXException {
-    	te.setResult("Error: " + e.getMessage());
+    	return;
     }
 
     public void fatalError(SAXParseException e) throws SAXException {
-    	te.setResult("Error: " + e.getMessage());
+    	return;
     }
 }
