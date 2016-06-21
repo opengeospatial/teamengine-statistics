@@ -5,16 +5,21 @@
  */
 package org.opengis.te.stats;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,13 +50,15 @@ public class AdminLogCreator {
   int innercountAllTime;
 
   static Logger logger = Logger.getLogger(AdminLogCreator.class.getName());
-  
+ 
   public AdminLogCreator() {
     testName = null;
     countLastMonth = 0;
     countLast3Month = 0;
     countLastYear = 0;
     countAllTime = 0;
+   
+    
   }
 
   public void processForExecutions(String testName, File logDir) throws SAXException, ParserConfigurationException, IOException {
@@ -245,10 +252,36 @@ public class AdminLogCreator {
     
 	String userDirectory = args[0];
     File pathUserDirecFile=new File(userDirectory);
-    String[] splitPath = userDirectory.split(File.separator);
+    String pattern = Pattern.quote(File.separator);
+    String[] splitPath = userDirectory.split(pattern);
     String splitFrom=splitPath[splitPath.length-1];
     File configDir=new File(userDirectory.split(splitFrom)[0] + "config.xml");
     FileHandler logFile = null;
+    BufferedWriter outputFile=null;
+//    Write the result into file;
+    
+    	 File dir=new File(System.getProperty("user.dir") + File.separator + "result-output" );
+    	 if(!dir.exists()){
+    		 if(!dir.mkdirs()){
+    			 System.out.println("Failed to create directory!");
+    		 }
+    	 }
+    	 SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMdd-HHmmss");//dd/MM/yyyy
+    	 Date now = new Date();
+    	 String currentdate = sdfDate.format(now);
+    	 String resultFileName="teamengine-statistics-" + currentdate;
+    	 File finalResult = new File(dir + File.separator + resultFileName);
+    	 if(finalResult.exists()){
+    		 finalResult.delete();
+    	 }
+    	 try{
+    	 FileWriter resultsWritter=new FileWriter(finalResult, true);
+    	 outputFile = new BufferedWriter(resultsWritter);
+    }catch(IOException io){
+    	System.out.println("Exception while writting file.");
+    	io.printStackTrace();
+    }
+    
     
     try{
     	DateTime logDate = new DateTime();
@@ -269,20 +302,29 @@ public class AdminLogCreator {
     DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
     Document doc = dBuilder.parse(configDir);
     doc.getDocumentElement().normalize();
+    
     NodeList nList = doc.getElementsByTagName("standard");
+    String testVersionName="";
     System.out.println("\tTest Statistics by Executions (Sessions)");
     for (int temp = 0; temp < nList.getLength(); temp++) {
       String testName = "";
       Element nNode = (Element) nList.item(temp);
+     
       NodeList nName = nNode.getElementsByTagName("name");
-      for (int nameCount = 0; nameCount < 2; nameCount++) {
+      NodeList nVersionList = nNode.getElementsByTagName("version");
+      testName =nName.item(0).getTextContent();
+      for (int nv = 0; nv < nVersionList.getLength(); nv++) {
+    	  Element nVersionNode = (Element) nVersionList.item(nv);
+    	  NodeList nVersionName = nVersionNode.getElementsByTagName("name");
+      for (int nameCount = 0; nameCount < 1; nameCount++) {
+    	 testVersionName="";
         if (!"".equals(testName)) {
-          testName = testName + "_";
+          testVersionName = testName + "_";
         }
-        testName = testName + nName.item(nameCount).getTextContent();
+        testVersionName = testVersionName + nVersionName.item(nameCount).getTextContent();
       }
       AdminLogCreator adminLogCreator = new AdminLogCreator();
-    adminLogCreator.processForExecutions(testName, pathUserDirecFile);
+    adminLogCreator.processForExecutions(testVersionName, pathUserDirecFile);
     
     System.out.println("\nTest Name: " + adminLogCreator.getTestName());
     System.out.print("Last Month:" + adminLogCreator.getCountLastMonth());
@@ -290,25 +332,34 @@ public class AdminLogCreator {
     System.out.print("\t\t|\tLast Year:" + adminLogCreator.getCountLastYear());
     System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime() + "\n");
     }
+    }
     System.out.println("\n\tTest Statistics by Users");
     for (int temp = 0; temp < nList.getLength(); temp++) {
-      String testName = "";
-      Element nNode = (Element) nList.item(temp);
-      NodeList nName = nNode.getElementsByTagName("name");
-      for (int nameCount = 0; nameCount < 2; nameCount++) {
-        if (testName != "") {
-          testName = testName + "_";
+    	String testName = "";
+        Element nNode = (Element) nList.item(temp);
+       
+        NodeList nName = nNode.getElementsByTagName("name");
+        NodeList nVersionList = nNode.getElementsByTagName("version");
+        testName =nName.item(0).getTextContent();
+        for (int nv = 0; nv < nVersionList.getLength(); nv++) {
+      	  Element nVersionNode = (Element) nVersionList.item(nv);
+      	  NodeList nVersionName = nVersionNode.getElementsByTagName("name");
+        for (int nameCount = 0; nameCount < 1; nameCount++) {
+      	 testVersionName="";
+          if (!"".equals(testName)) {
+            testVersionName = testName + "_";
+          }
+          testVersionName = testVersionName + nVersionName.item(nameCount).getTextContent();
         }
-        testName = testName + nName.item(nameCount).getTextContent();
-      }
       AdminLogCreator adminLogCreator = new AdminLogCreator();
-    adminLogCreator.processForUsers(testName, pathUserDirecFile);
+    adminLogCreator.processForUsers(testVersionName, pathUserDirecFile);
     
     System.out.println("\nTest Name: " + adminLogCreator.getTestName());
     System.out.print("Last Month:" + adminLogCreator.getCountLastMonth());
     System.out.print("\t|\tLast 3 Months:" + adminLogCreator.getCountLast3Month());
     System.out.print("\t\t|\tLast Year:" + adminLogCreator.getCountLastYear());
     System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime() + "\n");
+    }
     }
     } catch (SAXParseException pe) {
     	logger.log(Level.SEVERE, "Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
