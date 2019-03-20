@@ -274,7 +274,7 @@ public class TEReport {
 		Date now = new Date();
 		String currentdate = sdfDate.format(now);
 		String resultFileName="teamengine-statistics-" + currentdate;
-		File finalResult = new File(dir + File.separator + resultFileName + ".txt");
+		File finalResult = new File(dir + File.separator + resultFileName + ".csv");
 		if(finalResult.exists()){
 			finalResult.delete();
 		}
