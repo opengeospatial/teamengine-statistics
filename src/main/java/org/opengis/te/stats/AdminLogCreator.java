@@ -13,8 +13,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +34,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -48,6 +53,20 @@ public class AdminLogCreator {
   int innercountLast3Month;
   int innercountLastYear;
   int innercountAllTime;
+  static int countTestLastYear;
+  
+  static int jan = 0;
+  static int feb = 0;
+  static int mar = 0;
+  static int apr = 0;
+  static int may = 0;
+  static int jun = 0;
+  static int jul = 0;
+  static int aug = 0;
+  static int sep = 0;
+  static int oct = 0;
+  static int nov = 0;
+  static int dec = 0;
 
   static Logger logger = Logger.getLogger(AdminLogCreator.class.getName());
  
@@ -57,6 +76,7 @@ public class AdminLogCreator {
     countLast3Month = 0;
     countLastYear = 0;
     countAllTime = 0;
+    countTestLastYear = 0;
    
     
   }
@@ -127,6 +147,154 @@ public class AdminLogCreator {
       }
     }
   }
+  
+  public void testRunsInLastYear(String testName, File logDir) throws SAXException, ParserConfigurationException, IOException {
+  
+  this.countLastYear = 0;  
+  setTestName(testName);
+  String[] rootDirs = logDir.list();
+  if (null != rootDirs && 0 < rootDirs.length) {
+    Arrays.sort(rootDirs);
+    for (int i = 0; i < rootDirs.length; i++) {
+      String[] dirs = new File(logDir, rootDirs[i]).list();
+      if (null != dirs && 0 < dirs.length) {
+        Arrays.sort(dirs);
+        for (int j = 0; j < dirs.length; j++) {
+          if (new File(new File(new File(logDir, rootDirs[i]), dirs[j]), "session.xml").exists()) {
+              
+          try {
+            File sessionFile = new File(new File(new File(logDir, rootDirs[i]), dirs[j]), "session.xml");
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setValidating(false);
+            dbf.setNamespaceAware(true);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            db.setErrorHandler(new AdminLogErrorHandler());
+            Document doc = db.parse(sessionFile);
+            Element session = (Element) (doc.getElementsByTagName("session").item(0));
+            if ((session.getAttribute("sourcesId")).contains(testName)) {
+                String date=null;
+                if(session.getAttribute("date") !=null && session.getAttribute("date") !=""){
+                    date=session.getAttribute("date");
+                } else {
+                    throw new NullPointerException("Date attribute is null in : '" + sessionFile + "'");
+                }
+                
+              DateTime testExecutionTime = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss").parseDateTime(date);
+              DateTime currentTime = DateTime.now();
+              int testExecYear = testExecutionTime.getYear();
+              int currentYear = currentTime.getYear();
+              if (testExecYear == currentYear) {
+                  countTestLastYear++;
+              }
+            }
+          } catch (SAXParseException pe) {
+                  logger.log(Level.SEVERE, "Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
+              }
+              catch (NullPointerException npe) {
+                  logger.log(Level.SEVERE, "Error:"+ npe.getMessage());
+              }
+              catch (Exception e) {
+                  logger.log(Level.SEVERE, "Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
+              }
+          }
+        }
+      }
+    }
+  }
+}  
+  
+  public void TestRunsPerMonthInLastYear(String testName, File logDir) throws SAXException, ParserConfigurationException, IOException {
+    
+  setTestName(testName);
+  String[] rootDirs = logDir.list();
+  if (null != rootDirs && 0 < rootDirs.length) {
+    Arrays.sort(rootDirs);
+    for (int i = 0; i < rootDirs.length; i++) {
+      String[] dirs = new File(logDir, rootDirs[i]).list();
+      if (null != dirs && 0 < dirs.length) {
+        Arrays.sort(dirs);
+        for (int j = 0; j < dirs.length; j++) {
+          if (new File(new File(new File(logDir, rootDirs[i]), dirs[j]), "session.xml").exists()) {
+              
+          try {
+            File sessionFile = new File(new File(new File(logDir, rootDirs[i]), dirs[j]), "session.xml");
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setValidating(false);
+            dbf.setNamespaceAware(true);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            db.setErrorHandler(new AdminLogErrorHandler());
+            Document doc = db.parse(sessionFile);
+            Element session = (Element) (doc.getElementsByTagName("session").item(0));
+            if ((session.getAttribute("sourcesId")).contains(testName)) {
+                String date=null;
+                if(session.getAttribute("date") !=null && session.getAttribute("date") !=""){
+                    date=session.getAttribute("date");
+                } else {
+                    throw new NullPointerException("Date attribute is null in : '" + sessionFile + "'");
+                }                
+              DateTime testExecutionTime = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss").parseDateTime(date);
+              DateTime currentTime = DateTime.now();
+              int testExecYear = testExecutionTime.getYear();
+              int testExecMonth = testExecutionTime.getMonthOfYear();
+              int currentYear = currentTime.getYear();
+              
+              if(testExecYear == currentYear){
+                
+                switch(testExecMonth){
+                case 1 :
+                  jan++;
+                  break;
+                case 2 :
+                  feb++;
+                  break;
+                case 3 :
+                  mar++;
+                  break;
+                case 4 :
+                  apr++;
+                  break;
+                case 5 :
+                  may++;
+                  break;
+                case 6 :
+                  jun++;
+                  break;
+                case 7 :
+                  jul++;
+                  break;
+                case 8 :
+                  aug++;
+                  break;  
+                case 9 :
+                  sep++;
+                  break;
+                case 10 :
+                  oct++;
+                  break;
+                case 11 :
+                  nov++;
+                  break;
+                case 12 :
+                  dec++;
+                  break;  
+                }
+              }
+            }
+          } catch (SAXParseException pe) {
+                  logger.log(Level.SEVERE, "Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
+              }
+              catch (NullPointerException npe) {
+                  logger.log(Level.SEVERE, "Error:"+ npe.getMessage());
+              }
+              catch (Exception e) {
+                  logger.log(Level.SEVERE, "Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
+              }
+          }
+        }
+      }
+    }
+  }
+}
 
   public void processForUsers(String testName, File logDir) throws SAXException, ParserConfigurationException, IOException {
     setTestName(testName);
@@ -302,6 +470,8 @@ public class AdminLogCreator {
     DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
     Document doc = dBuilder.parse(configDir);
     doc.getDocumentElement().normalize();
+    ArrayList listOfLastYearMapCount = new ArrayList();
+    
     
     NodeList nList = doc.getElementsByTagName("standard");
     String testVersionName="";
@@ -333,7 +503,73 @@ public class AdminLogCreator {
     System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime() + "\n");
     }
     }
-    System.out.println("\n\tTest Statistics by Users");
+    
+
+    System.out.println("\n\n\n\n==========================================================\n\n");
+    System.out.println("\nTest runs in last year\n\n");
+    for (int temp = 0; temp < nList.getLength(); temp++) {
+      String testName = "";
+      Map<String, Object> lastYearCount = new HashMap<String, Object>();
+      Element nNode = (Element) nList.item(temp);
+     
+      NodeList nName = nNode.getElementsByTagName("name");
+      NodeList nVersionList = nNode.getElementsByTagName("version");
+      testName =nName.item(0).getTextContent();
+      for (int nv = 0; nv < nVersionList.getLength(); nv++) {
+          Element nVersionNode = (Element) nVersionList.item(nv);
+          NodeList nVersionName = nVersionNode.getElementsByTagName("name");
+      for (int nameCount = 0; nameCount < 1; nameCount++) {
+          lastYearCount = new HashMap<String, Object>();
+         testVersionName="";
+        if (!"".equals(testName)) {
+          testVersionName = testName + "_";
+        }
+        testVersionName = testVersionName + nVersionName.item(nameCount).getTextContent();
+      }
+      AdminLogCreator adminLogCreator = new AdminLogCreator();
+    adminLogCreator.testRunsInLastYear(testVersionName, pathUserDirecFile);    
+        
+    lastYearCount.put("name", adminLogCreator.getTestName());
+    lastYearCount.put("y", countTestLastYear);
+    listOfLastYearMapCount.add(lastYearCount);
+    }     
+    }
+    
+    JSONObject json = new JSONObject();
+    json.put("data", listOfLastYearMapCount);
+    System.out.println(json);
+    
+    System.out.println("\n\n\n\n==========================================================\n\n");
+    System.out.println("\nTest runs per month in last year\n\n");
+    for (int temp = 0; temp < nList.getLength(); temp++) {
+      String testName = "";
+      Element nNode = (Element) nList.item(temp);
+     
+      NodeList nName = nNode.getElementsByTagName("name");
+      NodeList nVersionList = nNode.getElementsByTagName("version");
+      testName =nName.item(0).getTextContent();
+      for (int nv = 0; nv < nVersionList.getLength(); nv++) {
+          Element nVersionNode = (Element) nVersionList.item(nv);
+          NodeList nVersionName = nVersionNode.getElementsByTagName("name");
+      for (int nameCount = 0; nameCount < 1; nameCount++) {
+         testVersionName="";
+        if (!"".equals(testName)) {
+          testVersionName = testName + "_";
+        }
+        testVersionName = testVersionName + nVersionName.item(nameCount).getTextContent();
+      }
+      AdminLogCreator adminLogCreator = new AdminLogCreator();
+      adminLogCreator.TestRunsPerMonthInLastYear(testVersionName, pathUserDirecFile);
+    }
+    }
+    ArrayList<Integer> testRunsPerMonth = new ArrayList<Integer>(Arrays.asList(jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec));
+    
+    JSONObject resultPerMonth = new JSONObject();
+    resultPerMonth.put("data", testRunsPerMonth);
+    System.out.println(resultPerMonth);
+    
+   System.out.println("\n\n\n\n==========================================================\n\n"); 
+   System.out.println("\n\tTest Statistics by Users");
     for (int temp = 0; temp < nList.getLength(); temp++) {
     	String testName = "";
         Element nNode = (Element) nList.item(temp);
@@ -361,6 +597,7 @@ public class AdminLogCreator {
     System.out.println("\t|\tAll Times:" + adminLogCreator.getCountAllTime() + "\n");
     }
     }
+
     } catch (SAXParseException pe) {
     	logger.log(Level.SEVERE, "Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
     	}
