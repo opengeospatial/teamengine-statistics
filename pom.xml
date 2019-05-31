@@ -18,6 +18,11 @@
          <artifactId>json</artifactId>
          <version>20180813</version>
       </dependency>
+      <dependency>
+      <groupId>org.opengis.cite.saxon</groupId>
+      <artifactId>saxon9</artifactId>
+      <version>9.0.0.8</version>
+    </dependency>
    </dependencies>
    <build>
       <plugins>

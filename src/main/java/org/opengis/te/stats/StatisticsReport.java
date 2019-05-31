@@ -1,12 +1,14 @@
 package org.opengis.te.stats;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.FileHandler;
@@ -19,10 +21,16 @@ import java.util.stream.Collectors;
 import javax.management.AttributeNotFoundException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONObject;
+import org.json.XML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -89,14 +97,15 @@ public class StatisticsReport {
     try{
       DateTime logDate = new DateTime();
       DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+      int year = logDate.getYear();
       String loggerDate = formatter.print(logDate);
-      File adminLogDir=new File(System.getProperty("user.dir"),"log");
-      File adminLogFile=new File(System.getProperty("user.dir"),"log"+File.separator+"AdminLog-" + loggerDate +".log");
-      
-      if(!adminLogDir.exists()){
-          adminLogDir.mkdir();
+      File statLogDir=new File(System.getProperty("user.dir"),"log");
+      File statLogFile=new File(System.getProperty("user.dir"),"log"+File.separator+"StatisticsLog-" + loggerDate +".log");
+      File statResultDir=new File(System.getProperty("user.dir"),"result");
+      if(!statLogDir.exists()){
+        statLogDir.mkdir();
       } 
-      logFile=new FileHandler(adminLogFile.toString(),true);
+      logFile=new FileHandler(statLogFile.toString(),true);
       logger.setUseParentHandlers(false);
       logFile.setFormatter(new SimpleFormatter());
       logger.addHandler(logFile);
@@ -143,7 +152,6 @@ public class StatisticsReport {
       JSONObject json = new JSONObject();
       json.put("data", listOfLastYearMapCount);
       System.out.println("\t" + json);
-      
       
       /***********************************************
        * 
@@ -221,6 +229,15 @@ public class StatisticsReport {
       numberOfUserPerTestSuite.put("data", listNumberOfUsersPerTestInLastYear);
       System.out.println("\t" + numberOfUserPerTestSuite);
       
+      /**********************************************
+       * 
+       * Generate statistics HTML report from the all results.
+       * 
+       *********************************************/
+      
+       generateStatisticsHtml(year, statResultDir, getListMapAsString(listOfLastYearMapCount), testRunsPerMonth, getArrayListAsString(usersPerMonth), getListMapAsString(listNumberOfUsersPerTestInLastYear));
+      
+       
     } catch(Exception e){
       System.out.println("Error: " + e.getMessage());
     }
@@ -561,6 +578,96 @@ public class StatisticsReport {
     return doc;
   }
 
+  /**
+   * Convert ArrayList of Map to the key-value pair
+   * similar to array list into string,
+   * which is used in HTML chart to represent the data
+   * 
+   * @param listOfLastYearMapCount
+   * @return String
+   */
+  private static String getListMapAsString(ArrayList<Map<String, Object>> listOfLastYearMapCount) {
+    String resultArrayList = "";
+    for (int i = 0; i < listOfLastYearMapCount.size(); i++) {
+      Map<String, Object> resultMap = listOfLastYearMapCount.get(i);
+      if (i == 0) {
+        resultArrayList += "[";
+      }
+      resultArrayList += "{\"name\" : \"" + resultMap.get("name") + "\",";
+      resultArrayList += "\"y\" : " + resultMap.get("y") + "}";
+      if (i != listOfLastYearMapCount.size() - 1) {
+        resultArrayList += ",";
+      }
+      if (i == listOfLastYearMapCount.size() - 1) {
+        resultArrayList += "]";
+      }
+    }
+    return resultArrayList;
+  }
+
+  /**
+   * This method is used to convert ArrayList 
+   * to string which is used in charts.
+   * 
+   * @param usersPerMonth
+   * @return String
+   */
+  private static String getArrayListAsString(ArrayList<Long> usersPerMonth) {
+
+    Iterator<Long> it = usersPerMonth.iterator();
+    String arrayList = "[";
+    while (it.hasNext()) {
+      arrayList += it.next();
+      if (it.hasNext()) {
+        arrayList += ",";
+      }
+      if (!it.hasNext()) {
+        arrayList += "]";
+      }
+    }
+    return arrayList;
+  }
+  
+  /**
+   * Generate Statistics HTML report by using
+   * XSL file and results.
+   * @param year 
+   * @param statResultDir
+   * @param listMapAsString
+   * @param testRunsPerMonth
+   * @param usersPerMonthResultList
+   * @param listNumberOfUsersPerTestInLastYear
+   */
+  private static void generateStatisticsHtml(int year, File statResultDir,
+      String listOfLastYearMapCountResult, ArrayList<Integer> testRunsPerMonth,
+      String usersPerMonthResultList,
+      String listNumberOfUsersPerTestInLastYear) {
+    
+    FileOutputStream fo;
+    try{
+      String xmlTemplate = StatisticsReport.class.getResource("/template.xml").toString();
+      String statXsl = StatisticsReport.class.getResource("/statistics-reporter.xsl").toString();
+      Transformer transformer = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null).newTransformer( new StreamSource( statXsl ) );
+      transformer.setParameter( "year", year);
+      transformer.setParameter( "testRunPertestSuite", listOfLastYearMapCountResult);
+      transformer.setParameter( "testRunsPerMonth", testRunsPerMonth);
+      transformer.setParameter( "usersPerMonth", usersPerMonthResultList);
+      transformer.setParameter( "listNumberOfUsersPerTestInLastYear", listNumberOfUsersPerTestInLastYear);
+      if(!statResultDir.exists()){
+       statResultDir.mkdir(); 
+      }
+      File indexHtml = new File( statResultDir, "TE-StatisticsReport.html" );
+      indexHtml.createNewFile();
+      fo = new FileOutputStream( indexHtml );
+      transformer.transform(new StreamSource(xmlTemplate), new StreamResult( fo ) );
+      fo.close();
+      System.out.println("\nGenerated HTML report here: " + indexHtml);
+    } catch(Exception e){
+      e.printStackTrace();
+    }
+    
+  }
+  
 }
 
 
