@@ -1,6 +1,7 @@
 package org.opengis.te.stats;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,6 +12,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,7 +76,7 @@ public class StatisticsReport {
 
     File userDir = new File(usersDir);
     if (!userDir.exists()) {
-      System.out.println("[ERROR]: Requested directory done not exists.");
+      System.out.println("[ERROR]: Requested directory does not exists." + userDir.toString());
       return;
     }
     File configFile = null;
@@ -159,7 +162,7 @@ public class StatisticsReport {
        * 
        **********************************************/
       System.out.println("\nTest Runs per month in last year:\n");
-      ArrayList<Integer> testRunsPerMonth = new ArrayList<Integer>();
+      ArrayList<Long> testRunsPerMonth = new ArrayList<Long>();
       for (int temp = 0; temp < nList.getLength(); temp++) {
         String testName = "";
         Element nNode = (Element) nList.item(temp);
@@ -229,13 +232,62 @@ public class StatisticsReport {
       numberOfUserPerTestSuite.put("data", listNumberOfUsersPerTestInLastYear);
       System.out.println("\t" + numberOfUserPerTestSuite);
       
-      /**********************************************
+    
+      /***************************************************
        * 
-       * Generate statistics HTML report from the all results.
+       * Number of users executed the WFS 2.0 standard per month in last Year
        * 
-       *********************************************/
+       **************************************************/
+        String wfs20 = "Web Feature Service (WFS)_2.0";
+        System.out.println("\nNumber of users executed the WFS 2.0 standard per month in last year:\n");
+        ArrayList<Long> numberOfUsersExecutedwfs20RunsPerMonth = new ArrayList<Long>();
+                 
+        numberOfUsersExecutedwfs20RunsPerMonth = numberOfUsersExecutedWFS20TestPerMonth(wfs20, userDetails); 
+        
+        JSONObject numberOfUsersExecutedwfs20RunsPerMonthResult = new JSONObject();
+        numberOfUsersExecutedwfs20RunsPerMonthResult.put("data", numberOfUsersExecutedwfs20RunsPerMonth);
+        System.out.println("\t" + numberOfUsersExecutedwfs20RunsPerMonthResult);
+        
+    /***************************************************
+     * 
+     * WFS 2.0 standard runs per month in last year.
+     * 
+     **************************************************/
+      System.out.println("\nWFS 2.0 standard runs per month in last year:\n");
+      ArrayList<Long> wfs20RunsPerMonth = new ArrayList<Long>();
+               
+      wfs20RunsPerMonth = wfs20RunsPerMonth(wfs20, userDetails); 
       
-       generateStatisticsHtml(year, statResultDir, getListMapAsString(listOfLastYearMapCount), testRunsPerMonth, getArrayListAsString(usersPerMonth), getListMapAsString(listNumberOfUsersPerTestInLastYear));
+      JSONObject wfs20RunsPerMonthResult = new JSONObject();
+      wfs20RunsPerMonthResult.put("data", wfs20RunsPerMonth);
+      System.out.println("\t" + wfs20RunsPerMonthResult);
+      
+      /***************************************************
+       * 
+       * WFS 2.0 standard success and failures by runs per month.
+       * 
+       **************************************************/
+        System.out.println("\nWFS 2.0 standard success and failures by runs per month:\n");
+        Map<String, ArrayList<Long>> wfs20StatusPerMonth = new HashMap<String, ArrayList<Long>>();
+        Map<String, Integer> testStatus = new HashMap<String, Integer>();
+        testStatus.put("success", 1);
+        testStatus.put("failure", 6);
+        testStatus.put("incomplete", 0);
+        wfs20StatusPerMonth = wfs20StatusPerMonth(wfs20, testStatus, userDetails); 
+        ArrayList<Long> successArray = wfs20StatusPerMonth.get("success");
+        ArrayList<Long> failureArray = wfs20StatusPerMonth.get("failure");
+        ArrayList<Long> incompleteArray = wfs20StatusPerMonth.get("incomplete");
+        JSONObject wfs20StatusPerMonthResult = new JSONObject();
+        wfs20StatusPerMonthResult.put("data", wfs20StatusPerMonth);
+        System.out.println("\t" + wfs20StatusPerMonthResult);      
+      
+    /**********************************************
+     * 
+     * Generate statistics HTML report from the all results.
+     * 
+     *********************************************/
+      
+    generateStatisticsHtml(year, statResultDir, getListMapAsString(listOfLastYearMapCount), getArrayListAsString(testRunsPerMonth), getArrayListAsString(usersPerMonth), getListMapAsString(listNumberOfUsersPerTestInLastYear) ,getArrayListAsString(numberOfUsersExecutedwfs20RunsPerMonth), getArrayListAsString(wfs20RunsPerMonth), getArrayListAsString(successArray), getArrayListAsString(failureArray), getArrayListAsString(incompleteArray));
       
        
     } catch(Exception e){
@@ -264,7 +316,9 @@ public class StatisticsReport {
           Arrays.sort(dirs);
           List<SessionDetails> sessions = new ArrayList<SessionDetails>();
           for (int j = 0; j < dirs.length; j++) {
-            File sessionFile = new File(new File(new File(userDir, rootDirs[i]), dirs[j]), "session.xml");
+            File sessionDir = new File(new File(userDir, rootDirs[i]), dirs[j]);
+            File sessionFile = new File(sessionDir, "session.xml");
+            File logFile = null;
             if (sessionFile.exists()) {
                 
             try {
@@ -293,17 +347,31 @@ public class StatisticsReport {
                 throw new AttributeNotFoundException("'date' attribute not found in : '" + sessionFile + "'");
               }
               sessions.add(user);
-            } catch (SAXParseException pe) {
+              
+              // Get test result from log.xml
+              logFile = new File(sessionDir, "log.xml");
+              int status = getSessionResult(logFile);
+              user.setStatus(status);
+              
+            } catch (SAXParseException pe) { 
                     logger.log(Level.SEVERE, "Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
+                    //System.out.println("XML DOC ERROR at -> " + logFile);
+                }
+                catch (FileNotFoundException fnfe) {
+                  logger.log(Level.SEVERE, "Error: Log file not found at -> " + logFile);
+                  //System.out.println("LOG FILE NOT FOUND at -> " + logFile);
                 }
                 catch (NullPointerException npe) {
-                    logger.log(Level.SEVERE, "Error:"+ npe.getMessage());
+                    logger.log(Level.SEVERE, "Error:"+ npe.getMessage() + " at -> " + logFile);
+                    //System.out.println("Mandatory values are null"+npe.getCause() + " at -> " + logFile);
                 }
                 catch (AttributeNotFoundException anfe) {
-                    logger.log(Level.SEVERE, "Error: Attribute not found in session."+ anfe.getMessage());
+                    logger.log(Level.SEVERE, "Error: Attribute not found in session."+ anfe.getMessage() + " at -> " + logFile);
+                    //System.out.println("'result' ATTRIBUTE NOT FOUND at -> " + logFile);
                 }
                 catch (Exception e) {
-                    logger.log(Level.SEVERE, "Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " '");
+                    logger.log(Level.SEVERE, "Error: Mandatory values are not valid: " + "' "+ e.getMessage() + " ' at -> "  + logFile);
+                    //System.out.println("Error: " + e.getMessage()+ "at here-> " + logFile);
                 }
             }
           }
@@ -312,6 +380,33 @@ public class StatisticsReport {
       }
     }
     return userDetails;
+  }
+  
+  private static int getSessionResult(File logFile) {
+    
+    if (logFile.exists()) {
+      Document doc = parse(logFile);
+      NodeList logElementList = doc.getElementsByTagName("log");
+
+      Element logElement = (Element) logElementList.item(0);
+      NodeList testResult = logElement.getElementsByTagName("endtest");
+
+      if (testResult.getLength() == 0) {
+        throw new NoSuchElementException(
+            "The 'endtest' element not found in log file.");
+      } else {
+        Element resultStatus = (Element) testResult.item(0);
+
+        if (resultStatus.hasAttribute("result")
+            && !resultStatus.getAttribute("result").equals("")) {
+          return Integer.parseInt(resultStatus.getAttribute("result"));
+        } else {
+          throw new RuntimeException(
+              "The 'result' attribute not found or having the NULL value in log file.");
+        }
+      }
+    }
+    return 0;
   }
 
   /**
@@ -366,10 +461,10 @@ public class StatisticsReport {
    * @return ArrayList Of Integer
    *            test count per month.
    */
-  private static ArrayList<Integer> testRunsPerMonthInLastYear(String testVersionName,
+  private static ArrayList<Long> testRunsPerMonthInLastYear(String testVersionName,
       Map<String, List<SessionDetails>> sessionDetailsList) {
     
-    int jan = 0, feb = 0, mar = 0, apr = 0, may = 0, jun = 0, jul = 0, aug = 0, sep = 0, oct = 0, nov = 0, dec = 0;
+    long jan = 0, feb = 0, mar = 0, apr = 0, may = 0, jun = 0, jul = 0, aug = 0, sep = 0, oct = 0, nov = 0, dec = 0;
     DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss");
     DateTime currentTime = DateTime.now();
     List<SessionDetails> foundSessions = null;
@@ -426,7 +521,7 @@ public class StatisticsReport {
         }
       }
     }
-    ArrayList<Integer> testRunsPerMonth = new ArrayList<Integer>(Arrays.asList(jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec));
+    ArrayList<Long> testRunsPerMonth = new ArrayList<Long>(Arrays.asList(jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec));
     return testRunsPerMonth;
   }
   
@@ -505,6 +600,205 @@ public class StatisticsReport {
     return numberOfUsersPerTestSuite;
   }
   
+  private static ArrayList<Long> wfs20RunsPerMonth(
+      String testVersionName, Map<String, List<SessionDetails>> sessionDetailsList) {
+    
+    long jan = 0, feb = 0, mar = 0, apr = 0, may = 0, jun = 0, jul = 0, aug = 0, sep = 0, oct = 0, nov = 0, dec = 0;
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss");
+    DateTime currentTime = DateTime.now();
+    List<SessionDetails> foundSessions = null;
+    for (Map.Entry<String, List<SessionDetails>> userSessions : sessionDetailsList
+        .entrySet()) {
+      List<SessionDetails> sessionList = userSessions.getValue();
+      
+      foundSessions = sessionList.stream()
+          .filter(session -> session.etsName.contains(testVersionName) && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear())
+          .collect(Collectors.toList());
+      
+      if (foundSessions != null && !foundSessions.isEmpty()) {
+        for (SessionDetails session : foundSessions) {
+          DateTime sessionDt = formatter.parseDateTime(session.getDate());
+          int sessionMonth = sessionDt.getMonthOfYear();
+          switch (sessionMonth) {
+          case 1:
+            jan++;
+            break;
+          case 2:
+            feb++;
+            break;
+          case 3:
+            mar++;
+            break;
+          case 4:
+            apr++;
+            break;
+          case 5:
+            may++;
+            break;
+          case 6:
+            jun++;
+            break;
+          case 7:
+            jul++;
+            break;
+          case 8:
+            aug++;
+            break;
+          case 9:
+            sep++;
+            break;
+          case 10:
+            oct++;
+            break;
+          case 11:
+            nov++;
+            break;
+          case 12:
+            dec++;
+            break;
+          }
+        }
+      }
+    }
+    ArrayList<Long> wfs20RunsPerMonth = new ArrayList<Long>(Arrays.asList(jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec));
+    return wfs20RunsPerMonth;
+  }
+  
+  /**
+   * Generates result of number of users
+   * executed wfs20 test per month in last year.
+   * 
+   * @param wfs20 
+   * @param sessionDetailsList 
+   * @return ArrayList of user count per month
+   */
+  private static ArrayList<Long> numberOfUsersExecutedWFS20TestPerMonth( String wfs20, Map<String, List<SessionDetails>> sessionDetailsList ) {
+    
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss");
+    DateTime currentTime = DateTime.now();
+    ArrayList<Integer> monthList = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+    ArrayList<Long> wfsTestsUsersPerMonth = new ArrayList<Long>();
+    for (Integer month : monthList) {
+      long count = 0;
+      long cnt = 0;
+      for (Map.Entry<String, List<SessionDetails>> userSessions : sessionDetailsList
+          .entrySet()) {
+        List<SessionDetails> sessionList = userSessions.getValue();
+        count = sessionList.stream()
+            .filter(session -> session.etsName.contains(wfs20)
+                    && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear()
+                    && formatter.parseDateTime(session.getDate()).getMonthOfYear() == month)
+            .collect(Collectors.counting());
+        if (count > 0) {
+          cnt++;
+        }
+      }
+      wfsTestsUsersPerMonth.add(cnt);
+    }
+    return wfsTestsUsersPerMonth;
+  }
+  
+  /**
+   * Generates the result for WFS 2.0 standards 
+   * success, failure and incomplete per month in last year
+   * 
+   * @param wfs20 
+   *            WFS 20 test suite name
+   * @param testStatus 
+   *            Status of test success, failure or incomplete
+   * @param userDetails
+   * 
+   * @return Map Object
+   *            Returns the map object with success, failure, incomplete count.
+   */
+  private static Map<String, ArrayList<Long>> wfs20StatusPerMonth(String wfs20, Map<String, Integer> testStatus,
+      
+      Map<String, List<SessionDetails>> userDetails) {
+    Map<String, ArrayList<Long>> wfs20StatusPerMonthMap = new HashMap<String, ArrayList<Long>>();
+
+    for (Entry<String, Integer> status : testStatus.entrySet()) {
+      long jan = 0, feb = 0, mar = 0, apr = 0, may = 0, jun = 0, jul = 0, aug = 0, sep = 0, oct = 0, nov = 0, dec = 0;
+      DateTimeFormatter formatter = DateTimeFormat
+          .forPattern("yyyy/MM/dd  HH:mm:ss");
+      DateTime currentTime = DateTime.now();
+      List<SessionDetails> foundSessions = null;
+
+      for (Map.Entry<String, List<SessionDetails>> userSessions : userDetails
+          .entrySet()) {
+        List<SessionDetails> sessionList = userSessions.getValue();
+        if (status.getValue() == 0) {
+          foundSessions = sessionList.stream()
+              .filter(session -> session.etsName.contains(wfs20)
+                      && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear()
+                      && session.getStatus() != testStatus.get("success")
+                      && session.getStatus() != testStatus.get("failure"))
+              .collect(Collectors.toList());
+        } else if (status.getValue() == 6) {
+          foundSessions = sessionList.stream()
+              .filter(session -> session.etsName.contains(wfs20)
+                      && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear())
+              .collect(Collectors.toList());
+          foundSessions = foundSessions.stream()
+              .filter(session -> session.getStatus() == 5 || session.getStatus() == testStatus.get("failure"))
+              .collect(Collectors.toList());
+        } else {
+          foundSessions = sessionList.stream()
+              .filter(session -> session.etsName.contains(wfs20)
+                      && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear()
+                      && session.getStatus() == status.getValue())
+              .collect(Collectors.toList());
+        }
+        if (foundSessions != null && !foundSessions.isEmpty()) {
+          for (SessionDetails session : foundSessions) {
+            DateTime sessionDt = formatter.parseDateTime(session.getDate());
+            int sessionMonth = sessionDt.getMonthOfYear();
+            switch (sessionMonth) {
+            case 1:
+              jan++;
+              break;
+            case 2:
+              feb++;
+              break;
+            case 3:
+              mar++;
+              break;
+            case 4:
+              apr++;
+              break;
+            case 5:
+              may++;
+              break;
+            case 6:
+              jun++;
+              break;
+            case 7:
+              jul++;
+              break;
+            case 8:
+              aug++;
+              break;
+            case 9:
+              sep++;
+              break;
+            case 10:
+              oct++;
+              break;
+            case 11:
+              nov++;
+              break;
+            case 12:
+              dec++;
+              break;
+            }
+          }
+        }
+      }
+      ArrayList<Long> wfs20statusPerMonth = new ArrayList<Long>(Arrays.asList(jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov,dec));
+      wfs20StatusPerMonthMap.put(status.getKey(), wfs20statusPerMonth);
+    }
+    return wfs20StatusPerMonthMap;
+  }
+  
   /**
    * The method will return the last year
    * date from the provided date.
@@ -558,7 +852,10 @@ public class StatisticsReport {
     Document doc = null;
     try {
       DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+      dbFactory.setValidating(false);
+      dbFactory.setNamespaceAware(true);
       DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+      dBuilder.setErrorHandler(new StatisticsReportErrorHandler());
       doc = dBuilder.parse(configFile);
       doc.getDocumentElement().normalize();
     } catch (SAXParseException pe) {
@@ -637,11 +934,17 @@ public class StatisticsReport {
    * @param testRunsPerMonth
    * @param usersPerMonthResultList
    * @param listNumberOfUsersPerTestInLastYear
+   * @param numberOfUsersExecutedwfs20RunsPerMonth 
+   * @param wfs20RunsPerMonth 
+   * @param successArray 
+   * @param failureArray 
    */
   private static void generateStatisticsHtml(int year, File statResultDir,
-      String listOfLastYearMapCountResult, ArrayList<Integer> testRunsPerMonth,
+      String listOfLastYearMapCountResult, String testRunsPerMonth,
       String usersPerMonthResultList,
-      String listNumberOfUsersPerTestInLastYear) {
+      String listNumberOfUsersPerTestInLastYear, 
+      String numberOfUsersExecutedwfs20RunsPerMonth, 
+      String wfs20RunsPerMonth, String successArray, String failureArray, String incompleteArray) {
     
     FileOutputStream fo;
     try{
@@ -653,6 +956,11 @@ public class StatisticsReport {
       transformer.setParameter( "testRunsPerMonth", testRunsPerMonth);
       transformer.setParameter( "usersPerMonth", usersPerMonthResultList);
       transformer.setParameter( "listNumberOfUsersPerTestInLastYear", listNumberOfUsersPerTestInLastYear);
+      transformer.setParameter( "numberOfUsersExecutedwfs20RunsPerMonth", numberOfUsersExecutedwfs20RunsPerMonth);
+      transformer.setParameter( "wfs20RunsPerMonth", wfs20RunsPerMonth);
+      transformer.setParameter( "successArray", successArray);
+      transformer.setParameter( "failureArray", failureArray);
+      transformer.setParameter( "incompleteArray", incompleteArray);
       if(!statResultDir.exists()){
        statResultDir.mkdir(); 
       }

@@ -13,11 +13,13 @@ public class SessionDetails {
   String id;
   String etsName;
   String date;
+  int status;
   
-  public SessionDetails(String id, String etsName, String date) {
+  public SessionDetails(String id, String etsName, String date, int status) {
     this.id = id;
     this.etsName = etsName;
     this.date = date;
+    this.status = status;
   }
   
   public SessionDetails() {
@@ -46,6 +48,14 @@ public class SessionDetails {
   
   public void setDate(String date) {
     this.date = date;
+  }
+
+  public int getStatus() {
+    return status;
+  }
+
+  public void setStatus(int status) {
+    this.status = status;
   }
 
 }
