@@ -33,7 +33,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONObject;
-import org.json.XML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -99,7 +98,7 @@ public class StatisticsReport {
     
     try{
       DateTime logDate = new DateTime();
-      DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+      DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd_HH-mm-ss");
       int year = logDate.getYear();
       String loggerDate = formatter.print(logDate);
       File statLogDir=new File(System.getProperty("user.dir"),"log");
@@ -279,7 +278,54 @@ public class StatisticsReport {
         ArrayList<Long> incompleteArray = wfs20StatusPerMonth.get("incomplete");
         JSONObject wfs20StatusPerMonthResult = new JSONObject();
         wfs20StatusPerMonthResult.put("data", wfs20StatusPerMonth);
-        System.out.println("\t" + wfs20StatusPerMonthResult);      
+        System.out.println("\t" + wfs20StatusPerMonthResult); 
+        
+    
+    
+
+        /***************************************************
+         * 
+         * Number of users executed the KML 2.2 standard per month in last Year
+         * 
+         **************************************************/
+          String kml22 = "OGC KML_2.2";
+          System.out.println("\nNumber of users executed the KML 2.2 standard per month in last year:\n");
+          ArrayList<Long> numberOfUsersExecutedkml22RunsPerMonth = new ArrayList<Long>();
+                   
+          numberOfUsersExecutedkml22RunsPerMonth = numberOfUsersExecutedKml22TestPerMonth(kml22, userDetails); 
+          
+          JSONObject numberOfUsersExecutedkml22RunsPerMonthResult = new JSONObject();
+          numberOfUsersExecutedkml22RunsPerMonthResult.put("data", numberOfUsersExecutedkml22RunsPerMonth);
+          System.out.println("\t" + numberOfUsersExecutedkml22RunsPerMonthResult);
+          
+      /***************************************************
+       * 
+       * KML 2.2 standard runs per month in last year.
+       * 
+       **************************************************/
+        System.out.println("\nKML 2.2 standard runs per month in last year:\n");
+        ArrayList<Long> kml22RunsPerMonth = new ArrayList<Long>();
+                 
+        kml22RunsPerMonth = kml22RunsPerMonth(kml22, userDetails); 
+        
+        JSONObject kml22RunsPerMonthResult = new JSONObject();
+        kml22RunsPerMonthResult.put("data", kml22RunsPerMonth);
+        System.out.println("\t" + kml22RunsPerMonthResult);
+        
+        /***************************************************
+         * 
+         * KML 2.2 standard success and failures by runs per month.
+         * 
+         **************************************************/
+          System.out.println("\nKML 2.2 standard success and failures by runs per month:\n");
+          Map<String, ArrayList<Long>> kml22StatusPerMonth = new HashMap<String, ArrayList<Long>>();
+          kml22StatusPerMonth = kml22StatusPerMonth(kml22, testStatus, userDetails); 
+          ArrayList<Long> kml22SuccessArray = kml22StatusPerMonth.get("success");
+          ArrayList<Long> kml22FailureArray = kml22StatusPerMonth.get("failure");
+          ArrayList<Long> kml22IncompleteArray = kml22StatusPerMonth.get("incomplete");
+          JSONObject kml22StatusPerMonthResult = new JSONObject();
+          kml22StatusPerMonthResult.put("data", kml22StatusPerMonth);
+          System.out.println("\t" + kml22StatusPerMonthResult); 
       
     /**********************************************
      * 
@@ -287,7 +333,13 @@ public class StatisticsReport {
      * 
      *********************************************/
       
-    generateStatisticsHtml(year, statResultDir, getListMapAsString(listOfLastYearMapCount), getArrayListAsString(testRunsPerMonth), getArrayListAsString(usersPerMonth), getListMapAsString(listNumberOfUsersPerTestInLastYear) ,getArrayListAsString(numberOfUsersExecutedwfs20RunsPerMonth), getArrayListAsString(wfs20RunsPerMonth), getArrayListAsString(successArray), getArrayListAsString(failureArray), getArrayListAsString(incompleteArray));
+    generateStatisticsHtml(loggerDate, year, statResultDir, 
+        getListMapAsString(listOfLastYearMapCount), getArrayListAsString(testRunsPerMonth), 
+        getArrayListAsString(usersPerMonth), getListMapAsString(listNumberOfUsersPerTestInLastYear), 
+        getArrayListAsString(numberOfUsersExecutedwfs20RunsPerMonth), getArrayListAsString(wfs20RunsPerMonth),
+        getArrayListAsString(successArray), getArrayListAsString(failureArray), getArrayListAsString(incompleteArray),
+        getArrayListAsString(numberOfUsersExecutedkml22RunsPerMonth), getArrayListAsString(kml22RunsPerMonth),
+        getArrayListAsString(kml22SuccessArray), getArrayListAsString(kml22FailureArray), getArrayListAsString(kml22IncompleteArray));
       
        
     } catch(Exception e){
@@ -600,6 +652,17 @@ public class StatisticsReport {
     return numberOfUsersPerTestSuite;
   }
   
+  /**
+   * Generates the result for WFS 2.0 standard 
+   * runs per month in last year.
+   * 
+   * @param testVersionName 
+   *        Name of the test suite with version.
+   * @param sessionDetailsList
+   *        Map of the users session list.
+   * @return 
+   *        ArrayList of test counts per month.
+   */
   private static ArrayList<Long> wfs20RunsPerMonth(
       String testVersionName, Map<String, List<SessionDetails>> sessionDetailsList) {
     
@@ -800,6 +863,216 @@ public class StatisticsReport {
   }
   
   /**
+   * Generates the result for KML 2.2 standard 
+   * runs per month in last year.
+   * 
+   * @param testVersionName 
+   *        Name of the test suite with version.
+   * @param sessionDetailsList
+   *        Map of the users session list.
+   * @return 
+   *        ArrayList of test counts per month.
+   */
+  private static ArrayList<Long> kml22RunsPerMonth(
+      String testVersionName, Map<String, List<SessionDetails>> sessionDetailsList) {
+    
+    long jan = 0, feb = 0, mar = 0, apr = 0, may = 0, jun = 0, jul = 0, aug = 0, sep = 0, oct = 0, nov = 0, dec = 0;
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss");
+    DateTime currentTime = DateTime.now();
+    List<SessionDetails> foundSessions = null;
+    for (Map.Entry<String, List<SessionDetails>> userSessions : sessionDetailsList
+        .entrySet()) {
+      List<SessionDetails> sessionList = userSessions.getValue();
+      
+      foundSessions = sessionList.stream()
+          .filter(session -> session.etsName.contains(testVersionName) && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear())
+          .collect(Collectors.toList());
+      
+      if (foundSessions != null && !foundSessions.isEmpty()) {
+        for (SessionDetails session : foundSessions) {
+          DateTime sessionDt = formatter.parseDateTime(session.getDate());
+          int sessionMonth = sessionDt.getMonthOfYear();
+          switch (sessionMonth) {
+          case 1:
+            jan++;
+            break;
+          case 2:
+            feb++;
+            break;
+          case 3:
+            mar++;
+            break;
+          case 4:
+            apr++;
+            break;
+          case 5:
+            may++;
+            break;
+          case 6:
+            jun++;
+            break;
+          case 7:
+            jul++;
+            break;
+          case 8:
+            aug++;
+            break;
+          case 9:
+            sep++;
+            break;
+          case 10:
+            oct++;
+            break;
+          case 11:
+            nov++;
+            break;
+          case 12:
+            dec++;
+            break;
+          }
+        }
+      }
+    }
+    ArrayList<Long> kml22RunsPerMonth = new ArrayList<Long>(Arrays.asList(jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec));
+    return kml22RunsPerMonth;
+  }
+  
+  /**
+   * Generates result of number of users
+   * executed kml22 test per month in last year.
+   * 
+   * @param kml22 
+   * @param sessionDetailsList 
+   * @return ArrayList of user count per month
+   */
+  private static ArrayList<Long> numberOfUsersExecutedKml22TestPerMonth( String kml22, Map<String, List<SessionDetails>> sessionDetailsList ) {
+    
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss");
+    DateTime currentTime = DateTime.now();
+    ArrayList<Integer> monthList = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+    ArrayList<Long> kml22TestsUsersPerMonth = new ArrayList<Long>();
+    for (Integer month : monthList) {
+      long count = 0;
+      long cnt = 0;
+      for (Map.Entry<String, List<SessionDetails>> userSessions : sessionDetailsList
+          .entrySet()) {
+        List<SessionDetails> sessionList = userSessions.getValue();
+        count = sessionList.stream()
+            .filter(session -> session.etsName.contains(kml22)
+                    && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear()
+                    && formatter.parseDateTime(session.getDate()).getMonthOfYear() == month)
+            .collect(Collectors.counting());
+        if (count > 0) {
+          cnt++;
+        }
+      }
+      kml22TestsUsersPerMonth.add(cnt);
+    }
+    return kml22TestsUsersPerMonth;
+  }
+  
+  /**
+   * Generates the result for KML 2.2 standards 
+   * success, failure and incomplete per month in last year
+   * 
+   * @param kml22 
+   *            KML 2.2 test suite name
+   * @param testStatus 
+   *            Status of test success, failure or incomplete
+   * @param userDetails
+   * 
+   * @return Map Object
+   *            Returns the map object with success, failure, incomplete count.
+   */
+  private static Map<String, ArrayList<Long>> kml22StatusPerMonth(String kml22, Map<String, Integer> testStatus,
+      
+      Map<String, List<SessionDetails>> userDetails) {
+    Map<String, ArrayList<Long>> kml22StatusPerMonthMap = new HashMap<String, ArrayList<Long>>();
+
+    for (Entry<String, Integer> status : testStatus.entrySet()) {
+      long jan = 0, feb = 0, mar = 0, apr = 0, may = 0, jun = 0, jul = 0, aug = 0, sep = 0, oct = 0, nov = 0, dec = 0;
+      DateTimeFormatter formatter = DateTimeFormat
+          .forPattern("yyyy/MM/dd  HH:mm:ss");
+      DateTime currentTime = DateTime.now();
+      List<SessionDetails> foundSessions = null;
+
+      for (Map.Entry<String, List<SessionDetails>> userSessions : userDetails
+          .entrySet()) {
+        List<SessionDetails> sessionList = userSessions.getValue();
+        if (status.getValue() == 0) {
+          foundSessions = sessionList.stream()
+              .filter(session -> session.etsName.contains(kml22)
+                      && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear()
+                      && session.getStatus() != testStatus.get("success")
+                      && session.getStatus() != testStatus.get("failure"))
+              .collect(Collectors.toList());
+        } else if (status.getValue() == 6) {
+          foundSessions = sessionList.stream()
+              .filter(session -> session.etsName.contains(kml22)
+                      && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear())
+              .collect(Collectors.toList());
+          foundSessions = foundSessions.stream()
+              .filter(session -> session.getStatus() == 5 || session.getStatus() == testStatus.get("failure"))
+              .collect(Collectors.toList());
+        } else {
+          foundSessions = sessionList.stream()
+              .filter(session -> session.etsName.contains(kml22)
+                      && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear()
+                      && session.getStatus() == status.getValue())
+              .collect(Collectors.toList());
+        }
+        if (foundSessions != null && !foundSessions.isEmpty()) {
+          for (SessionDetails session : foundSessions) {
+            DateTime sessionDt = formatter.parseDateTime(session.getDate());
+            int sessionMonth = sessionDt.getMonthOfYear();
+            switch (sessionMonth) {
+            case 1:
+              jan++;
+              break;
+            case 2:
+              feb++;
+              break;
+            case 3:
+              mar++;
+              break;
+            case 4:
+              apr++;
+              break;
+            case 5:
+              may++;
+              break;
+            case 6:
+              jun++;
+              break;
+            case 7:
+              jul++;
+              break;
+            case 8:
+              aug++;
+              break;
+            case 9:
+              sep++;
+              break;
+            case 10:
+              oct++;
+              break;
+            case 11:
+              nov++;
+              break;
+            case 12:
+              dec++;
+              break;
+            }
+          }
+        }
+      }
+      ArrayList<Long> kml22statusPerMonth = new ArrayList<Long>(Arrays.asList(jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov,dec));
+      kml22StatusPerMonthMap.put(status.getKey(), kml22statusPerMonth);
+    }
+    return kml22StatusPerMonthMap;
+  }
+  
+  /**
    * The method will return the last year
    * date from the provided date.
    * 
@@ -928,6 +1201,7 @@ public class StatisticsReport {
   /**
    * Generate Statistics HTML report by using
    * XSL file and results.
+   * @param loggerDate 
    * @param year 
    * @param statResultDir
    * @param listMapAsString
@@ -938,13 +1212,20 @@ public class StatisticsReport {
    * @param wfs20RunsPerMonth 
    * @param successArray 
    * @param failureArray 
+   * @param numberOfUsersExecutedkml22RunsPerMonth 
+   * @param kml22RunsPerMonth 
+   * @param kml22SuccessArray 
+   * @param kml22FailureArray 
+   * @param kml22IncompleteArray 
    */
-  private static void generateStatisticsHtml(int year, File statResultDir,
+  private static void generateStatisticsHtml(String loggerDate, int year, File statResultDir,
       String listOfLastYearMapCountResult, String testRunsPerMonth,
       String usersPerMonthResultList,
       String listNumberOfUsersPerTestInLastYear, 
       String numberOfUsersExecutedwfs20RunsPerMonth, 
-      String wfs20RunsPerMonth, String successArray, String failureArray, String incompleteArray) {
+      String wfs20RunsPerMonth, String successArray, String failureArray, String incompleteArray, 
+      String numberOfUsersExecutedkml22RunsPerMonth, 
+      String kml22RunsPerMonth, String kml22SuccessArray, String kml22FailureArray, String kml22IncompleteArray) {
     
     FileOutputStream fo;
     try{
@@ -961,10 +1242,15 @@ public class StatisticsReport {
       transformer.setParameter( "successArray", successArray);
       transformer.setParameter( "failureArray", failureArray);
       transformer.setParameter( "incompleteArray", incompleteArray);
+      transformer.setParameter( "numberOfUsersExecutedkml22RunsPerMonth", numberOfUsersExecutedkml22RunsPerMonth);
+      transformer.setParameter( "kml22RunsPerMonth", kml22RunsPerMonth);
+      transformer.setParameter( "kml22SuccessArray", kml22SuccessArray);
+      transformer.setParameter( "kml22FailureArray", kml22FailureArray);
+      transformer.setParameter( "kml22IncompleteArray", kml22IncompleteArray);
       if(!statResultDir.exists()){
        statResultDir.mkdir(); 
       }
-      File indexHtml = new File( statResultDir, "TE-StatisticsReport.html" );
+      File indexHtml = new File( statResultDir, "TE-StatisticsReport-" + loggerDate + ".html" );
       indexHtml.createNewFile();
       fo = new FileOutputStream( indexHtml );
       transformer.transform(new StreamSource(xmlTemplate), new StreamResult( fo ) );
