@@ -397,15 +397,15 @@
                    },
                    series: [{
                        name: &apos;Success&apos;,
-                       data: <xsl:value-of select="$successArray" />
+                       data: <xsl:value-of select="$kml22SuccessArray" />
                
                    }, {
                        name: &apos;Failure&apos;,
-                       data: <xsl:value-of select="$failureArray" />
+                       data: <xsl:value-of select="$kml22FailureArray" />
                
                    }, {
                        name: &apos;Incomplete&apos;,
-                       data: <xsl:value-of select="$incompleteArray" />
+                       data: <xsl:value-of select="$kml22IncompleteArray" />
                
                    }]
                });
