@@ -19,6 +19,8 @@
    <xsl:param name="kml22SuccessArray" />
    <xsl:param name="kml22FailureArray" />
    <xsl:param name="kml22IncompleteArray" />
+   <xsl:param name="wfs20StatusDrilldownResult" />
+   <xsl:param name="wfs20FailedTestDrillDownData" />
 
    <xsl:template match="/">
     <html>
@@ -26,6 +28,7 @@
             <title>TEAM Engine Statistics Report</title>
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
             <script src="http://code.highcharts.com/highcharts.js"></script>
+            <script src="https://code.highcharts.com/modules/drilldown.js"></script>
          </head>
          <body>
             <div id="pichartContainer" style="width: 100%; height: 500px; margin: 0 auto"></div>
@@ -49,6 +52,10 @@
             <hr />
             <br />
             <div id="wfs20StandardSuccessFailureContainer" style="width: 100%; height: 500px; margin: 0 auto"></div>
+            <br />
+            <hr />
+            <br />
+            <div id="wfs20StatusWithDrilldown" style="width: 100%; height: 500px; margin: 0 auto"></div>
             <br />
             <hr />
             <br />
@@ -308,6 +315,41 @@
                
                    }]
                });
+               
+               Highcharts.chart(&apos;wfs20StatusWithDrilldown&apos;, {
+                    chart: {
+                      type: &apos;pie&apos;
+                    },
+                    title: {
+                      text: &apos;WFS 2.0 - Passing, failing &amp; incomplete test runs in <xsl:value-of select="$year" />&apos;
+                    },
+                    plotOptions: {
+                      series: {
+                        dataLabels: {
+                          enabled: true,
+                          format: &apos;<xsl:text disable-output-escaping="yes"><![CDATA[{point.name}: {point.y}]]></xsl:text>&apos;
+                        }
+                      }
+                    },
+                  
+                    tooltip: {
+                      headerFormat: &apos;<xsl:text disable-output-escaping="yes"><![CDATA[<span style="font-size:11px">{series.name}</span><br>]]> </xsl:text>&apos;,
+                      pointFormat: &apos;<xsl:text disable-output-escaping="yes"><![CDATA[<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b><br/>]]> </xsl:text>&apos;
+                    },
+                  
+                    series: [{
+                      name: &quot;WFS 2.0 standard&quot;,
+                      colorByPoint: true,
+                      data:<xsl:value-of select="$wfs20StatusDrilldownResult" />
+                    }],
+                    drilldown: {
+                      series: [{
+                        name: &quot;Failure&quot;,
+                        id: &quot;Failure&quot;,
+                        data:<xsl:value-of select="$wfs20FailedTestDrillDownData" />
+                      }]
+                    }
+                  });
                
                <!-- ******************************************************************* -->
                <!-- ***************               KML 2.2              **************** -->

@@ -1,19 +1,25 @@
 package org.opengis.te.stats;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +34,10 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -35,8 +45,10 @@ import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -54,6 +66,7 @@ public class StatisticsReport {
   static Logger logger = Logger.getLogger(StatisticsReport.class.getName());
   
   private static Map<String, Object> runPerTestSuiteInLastYear = new HashMap<String, Object>();
+  private static Map<String, Long> wfs20FailedTestDrillDownMap = new HashMap<String, Long>();
   
   public static void main(String[] args) {
     String usersDir = "";
@@ -269,20 +282,45 @@ public class StatisticsReport {
         System.out.println("\nWFS 2.0 standard success and failures by runs per month:\n");
         Map<String, ArrayList<Long>> wfs20StatusPerMonth = new HashMap<String, ArrayList<Long>>();
         Map<String, Integer> testStatus = new HashMap<String, Integer>();
-        testStatus.put("success", 1);
-        testStatus.put("failure", 6);
-        testStatus.put("incomplete", 0);
+        testStatus.put("Success", 1);
+        testStatus.put("Failure", 6);
+        testStatus.put("Incomplete", 0);
         wfs20StatusPerMonth = wfs20StatusPerMonth(wfs20, testStatus, userDetails); 
-        ArrayList<Long> successArray = wfs20StatusPerMonth.get("success");
-        ArrayList<Long> failureArray = wfs20StatusPerMonth.get("failure");
-        ArrayList<Long> incompleteArray = wfs20StatusPerMonth.get("incomplete");
+        ArrayList<Long> successArray = wfs20StatusPerMonth.get("Success");
+        ArrayList<Long> failureArray = wfs20StatusPerMonth.get("Failure");
+        ArrayList<Long> incompleteArray = wfs20StatusPerMonth.get("Incomplete");
         JSONObject wfs20StatusPerMonthResult = new JSONObject();
         wfs20StatusPerMonthResult.put("data", wfs20StatusPerMonth);
         System.out.println("\t" + wfs20StatusPerMonthResult); 
         
+        /***************************************************
+         * 
+         * WFS 2.0 - Passing, failing & incomplete test runs in last year.
+         * 
+         **************************************************/
+          System.out.println("\nWFS 2.0 - Passing, failing & incomplete test runs in 2019:\n");
+          ArrayList<Map<String, Object>> wfs20StatusWithDrilldown = new ArrayList<Map<String, Object>>();
+          wfs20FailedTestDrillDownMap.clear();
+          wfs20StatusWithDrilldown = wfs20StatusWithDrilldown(wfs20, testStatus, userDetails); 
+          
+          List<List<Object>> wfs20FailedTestListData = new ArrayList<List<Object>>();
+          for (Map.Entry<String, Long> entry : wfs20FailedTestDrillDownMap.entrySet()) {
+            List<Object> testset = new ArrayList<Object>();
+            testset.add(entry.getKey());
+            testset.add(entry.getValue());
+            wfs20FailedTestListData.add(testset);
+          }
+          
+          JSONObject wfs20StatusDrilldownResult = new JSONObject();
+          wfs20StatusDrilldownResult.put("data", wfs20StatusWithDrilldown);
+          System.out.println("\t" + wfs20StatusDrilldownResult.get("data").toString()); 
+          
+          JSONObject wfs20FailedTestDrillDownMapJson = new JSONObject(wfs20FailedTestListData);
+          wfs20FailedTestDrillDownMapJson.put("data", wfs20FailedTestListData);
+          String wfs20FailedTestDrillDownData = wfs20FailedTestDrillDownMapJson.get("data").toString();
+          System.out.println("\n Drilldown data for Failure: \n\t" + wfs20FailedTestDrillDownData);
     
     
-
         /***************************************************
          * 
          * Number of users executed the KML 2.2 standard per month in last Year
@@ -320,9 +358,9 @@ public class StatisticsReport {
           System.out.println("\nKML 2.2 standard success and failures by runs per month:\n");
           Map<String, ArrayList<Long>> kml22StatusPerMonth = new HashMap<String, ArrayList<Long>>();
           kml22StatusPerMonth = kml22StatusPerMonth(kml22, testStatus, userDetails); 
-          ArrayList<Long> kml22SuccessArray = kml22StatusPerMonth.get("success");
-          ArrayList<Long> kml22FailureArray = kml22StatusPerMonth.get("failure");
-          ArrayList<Long> kml22IncompleteArray = kml22StatusPerMonth.get("incomplete");
+          ArrayList<Long> kml22SuccessArray = kml22StatusPerMonth.get("Success");
+          ArrayList<Long> kml22FailureArray = kml22StatusPerMonth.get("Failure");
+          ArrayList<Long> kml22IncompleteArray = kml22StatusPerMonth.get("Incomplete");
           JSONObject kml22StatusPerMonthResult = new JSONObject();
           kml22StatusPerMonthResult.put("data", kml22StatusPerMonth);
           System.out.println("\t" + kml22StatusPerMonthResult); 
@@ -339,7 +377,8 @@ public class StatisticsReport {
         getArrayListAsString(numberOfUsersExecutedwfs20RunsPerMonth), getArrayListAsString(wfs20RunsPerMonth),
         getArrayListAsString(successArray), getArrayListAsString(failureArray), getArrayListAsString(incompleteArray),
         getArrayListAsString(numberOfUsersExecutedkml22RunsPerMonth), getArrayListAsString(kml22RunsPerMonth),
-        getArrayListAsString(kml22SuccessArray), getArrayListAsString(kml22FailureArray), getArrayListAsString(kml22IncompleteArray));
+        getArrayListAsString(kml22SuccessArray), getArrayListAsString(kml22FailureArray), getArrayListAsString(kml22IncompleteArray),
+        wfs20StatusDrilldownResult.get("data").toString(), wfs20FailedTestDrillDownData);
       
        
     } catch(Exception e){
@@ -403,7 +442,12 @@ public class StatisticsReport {
               // Get test result from log.xml
               logFile = new File(sessionDir, "log.xml");
               int status = getSessionResult(logFile);
+              List<String> failedTestList = null;
+              if(status == 6){
+                failedTestList = getListOfFailedTest(sessionDir);
+              }
               user.setStatus(status);
+              user.setFailedTestList(failedTestList);
               
             } catch (SAXParseException pe) { 
                     logger.log(Level.SEVERE, "Error: Unable to parse xml >>" + " Public ID: "+pe.getPublicId() + ", System ID: "+pe.getSystemId() + ", Line number: "+pe.getLineNumber() + ", Column number: "+pe.getColumnNumber() + ", Message: "+pe.getMessage());
@@ -461,6 +505,35 @@ public class StatisticsReport {
     return 0;
   }
 
+  private static List<String> getListOfFailedTest(File sessionDir) {
+    File testngDir = new File(sessionDir, "testng");
+    List<String> failedTestList = new ArrayList<String>();
+    File testngResult = null;
+    if (testngDir.exists()) {
+      String[] dir = testngDir.list();
+      File testngUuidDirectory = new File(testngDir, dir[0]);
+      if (testngUuidDirectory.isDirectory()) {
+        testngResult = new File(testngUuidDirectory, "testng-results.xml");
+      }
+      if (testngResult.exists()) {
+        Document doc = parse(testngResult);
+        NodeList failedNodeList = null;
+        try {
+          failedNodeList = evaluateXPath(doc, "//test/class/test-method[@status='FAIL']");
+          for (int i = 0; i < failedNodeList.getLength(); i++) {
+            Element testElement = (Element) failedNodeList.item(i);
+            if (testElement.hasAttribute("name")) {
+              failedTestList.add(testElement.getAttribute("name"));
+            }
+          }
+        } catch (XPathExpressionException xpe) {
+          throw new RuntimeException(xpe);
+        }
+      }
+    }
+    return failedTestList;
+  }
+  
   /**
    * This method is used to generate result of test
    * runs per month in last year.
@@ -793,8 +866,8 @@ public class StatisticsReport {
           foundSessions = sessionList.stream()
               .filter(session -> session.etsName.contains(wfs20)
                       && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear()
-                      && session.getStatus() != testStatus.get("success")
-                      && session.getStatus() != testStatus.get("failure"))
+                      && session.getStatus() != testStatus.get("Success")
+                      && session.getStatus() != testStatus.get("Failure"))
               .collect(Collectors.toList());
         } else if (status.getValue() == 6) {
           foundSessions = sessionList.stream()
@@ -802,7 +875,7 @@ public class StatisticsReport {
                       && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear())
               .collect(Collectors.toList());
           foundSessions = foundSessions.stream()
-              .filter(session -> session.getStatus() == 5 || session.getStatus() == testStatus.get("failure"))
+              .filter(session -> session.getStatus() == 5 || session.getStatus() == testStatus.get("Failure"))
               .collect(Collectors.toList());
         } else {
           foundSessions = sessionList.stream()
@@ -860,6 +933,94 @@ public class StatisticsReport {
       wfs20StatusPerMonthMap.put(status.getKey(), wfs20statusPerMonth);
     }
     return wfs20StatusPerMonthMap;
+  }
+  
+private static ArrayList<Map<String, Object>> wfs20StatusWithDrilldown(String wfs20, Map<String, Integer> testStatus,      
+      Map<String, List<SessionDetails>> userDetails) {
+    
+    ArrayList<Map<String, Object>> wfs20StatusWithTotalCountList = new ArrayList<Map<String, Object>>();
+    Map<String, Long> wfs20FailedTestMap = new HashMap<String, Long>();
+
+    for (Entry<String, Integer> status : testStatus.entrySet()) {
+      long testCount =0;
+      Map<String, Object> wfs20StatusDrillDownMap = new HashMap<String, Object>();
+      DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss");
+      DateTime currentTime = DateTime.now();
+      List<SessionDetails> foundSessions = null;
+
+      for (Map.Entry<String, List<SessionDetails>> userSessions : userDetails
+          .entrySet()) {
+        List<SessionDetails> sessionList = userSessions.getValue();
+        long count = 0;
+        if (status.getValue() == 0) {
+          count = sessionList.stream()
+              .filter(session -> session.etsName.contains(wfs20)
+                      && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear()
+                      && session.getStatus() != testStatus.get("Success")
+                      && session.getStatus() != testStatus.get("Failure"))
+              .collect(Collectors.counting());
+          if(count > 0){
+            testCount += count;
+          }
+        } else if (status.getValue() == 6) {
+          foundSessions = sessionList.stream()
+              .filter(session -> session.etsName.contains(wfs20)
+                      && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear())
+              .collect(Collectors.toList());
+          count = foundSessions.stream()
+              .filter(session -> session.getStatus() == 5 || session.getStatus() == testStatus.get("Failure"))
+              .collect(Collectors.counting());
+          if(count > 0){
+            testCount += count;
+          }
+          foundSessions = foundSessions.stream()
+              .filter(session -> session.getStatus() == 5 || session.getStatus() == testStatus.get("Failure"))
+              .collect(Collectors.toList());
+          
+          //Iterate each session to get list of failed tests
+          if (foundSessions != null && !foundSessions.isEmpty()) {
+            for (SessionDetails session : foundSessions) {
+              if(session.getFailedTestList() != null && !session.getFailedTestList().isEmpty()){
+                List<String> testList = session.getFailedTestList();
+                for (String test : session.getFailedTestList()) {
+                    wfs20FailedTestMap.compute(test, (k, v) -> v == null ? 1 : v + 1);
+                }
+              }
+            }
+          }
+          
+        } else {
+          count = sessionList.stream()
+              .filter(session -> session.etsName.contains(wfs20)
+                      && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear()
+                      && session.getStatus() == status.getValue())
+              .collect(Collectors.counting());
+          if(count > 0){
+            testCount += count;
+          }
+        }
+        
+      }
+      wfs20StatusDrillDownMap.put("name", status.getKey());
+      wfs20StatusDrillDownMap.put("y", testCount);
+      if(status.getValue() == 6){
+        wfs20StatusDrillDownMap.put("drilldown", status.getKey());
+      }
+      switch (status.getValue()) {
+        case 0:
+          wfs20StatusDrillDownMap.put("color", "#ffff00");
+          break;
+        case 1:
+          wfs20StatusDrillDownMap.put("color", "#33cc33");
+          break;
+        case 6:
+          wfs20StatusDrillDownMap.put("color", "#ff0000");
+          break;
+      }
+      wfs20StatusWithTotalCountList.add(wfs20StatusDrillDownMap);
+    }
+    wfs20FailedTestDrillDownMap.putAll( wfs20FailedTestMap);    
+    return wfs20StatusWithTotalCountList;
   }
   
   /**
@@ -1003,8 +1164,8 @@ public class StatisticsReport {
           foundSessions = sessionList.stream()
               .filter(session -> session.etsName.contains(kml22)
                       && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear()
-                      && session.getStatus() != testStatus.get("success")
-                      && session.getStatus() != testStatus.get("failure"))
+                      && session.getStatus() != testStatus.get("Success")
+                      && session.getStatus() != testStatus.get("Failure"))
               .collect(Collectors.toList());
         } else if (status.getValue() == 6) {
           foundSessions = sessionList.stream()
@@ -1012,7 +1173,7 @@ public class StatisticsReport {
                       && formatter.parseDateTime(session.getDate()).getYear() == currentTime.getYear())
               .collect(Collectors.toList());
           foundSessions = foundSessions.stream()
-              .filter(session -> session.getStatus() == 5 || session.getStatus() == testStatus.get("failure"))
+              .filter(session -> session.getStatus() == 5 || session.getStatus() == testStatus.get("Failure"))
               .collect(Collectors.toList());
         } else {
           foundSessions = sessionList.stream()
@@ -1124,12 +1285,17 @@ public class StatisticsReport {
   private static Document parse(File configFile) {
     Document doc = null;
     try {
+      InputStream inputStream= new FileInputStream(configFile);
+      Reader reader = new InputStreamReader(inputStream,"UTF-8");
+      InputSource is = new InputSource(reader);
+      is.setEncoding("UTF-8");
+      
       DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
       dbFactory.setValidating(false);
       dbFactory.setNamespaceAware(true);
       DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
       dBuilder.setErrorHandler(new StatisticsReportErrorHandler());
-      doc = dBuilder.parse(configFile);
+      doc = dBuilder.parse(is);
       doc.getDocumentElement().normalize();
     } catch (SAXParseException pe) {
       logger.log(
@@ -1217,6 +1383,8 @@ public class StatisticsReport {
    * @param kml22SuccessArray 
    * @param kml22FailureArray 
    * @param kml22IncompleteArray 
+   * @param wfs20FailedTestDrillDownData 
+   * @param string 
    */
   private static void generateStatisticsHtml(String loggerDate, int year, File statResultDir,
       String listOfLastYearMapCountResult, String testRunsPerMonth,
@@ -1225,7 +1393,8 @@ public class StatisticsReport {
       String numberOfUsersExecutedwfs20RunsPerMonth, 
       String wfs20RunsPerMonth, String successArray, String failureArray, String incompleteArray, 
       String numberOfUsersExecutedkml22RunsPerMonth, 
-      String kml22RunsPerMonth, String kml22SuccessArray, String kml22FailureArray, String kml22IncompleteArray) {
+      String kml22RunsPerMonth, String kml22SuccessArray, String kml22FailureArray, String kml22IncompleteArray, 
+      String wfs20StatusDrilldownResult, String wfs20FailedTestDrillDownData) {
     
     FileOutputStream fo;
     try{
@@ -1247,6 +1416,8 @@ public class StatisticsReport {
       transformer.setParameter( "kml22SuccessArray", kml22SuccessArray);
       transformer.setParameter( "kml22FailureArray", kml22FailureArray);
       transformer.setParameter( "kml22IncompleteArray", kml22IncompleteArray);
+      transformer.setParameter( "wfs20StatusDrilldownResult", wfs20StatusDrilldownResult);
+      transformer.setParameter( "wfs20FailedTestDrillDownData", wfs20FailedTestDrillDownData);
       if(!statResultDir.exists()){
        statResultDir.mkdir(); 
       }
@@ -1262,6 +1433,17 @@ public class StatisticsReport {
     
   }
   
+  public static NodeList evaluateXPath(Node context, String expr)
+      throws XPathExpressionException {
+    XPathFactory factory = XPathFactory.newInstance();
+    XPath xpath = factory.newXPath();
+    Object result = xpath.evaluate(expr, context, XPathConstants.NODESET);
+
+    if (!NodeList.class.isInstance(result)) {
+      throw new XPathExpressionException("Expression does not evaluate to a NodeList: " + expr);
+    }
+    return (NodeList) result;
+  }
 }
 
 

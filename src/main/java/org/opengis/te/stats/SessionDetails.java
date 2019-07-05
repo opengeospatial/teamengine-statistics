@@ -1,5 +1,7 @@
 package org.opengis.te.stats;
 
+import java.util.List;
+
 /**
  * This POJO class is used to hold the user details
  * which is retrieved from the session.xml file and
@@ -14,12 +16,14 @@ public class SessionDetails {
   String etsName;
   String date;
   int status;
+  List<String> failedTestList;
   
-  public SessionDetails(String id, String etsName, String date, int status) {
+  public SessionDetails(String id, String etsName, String date, int status, List<String> failedTestList) {
     this.id = id;
     this.etsName = etsName;
     this.date = date;
     this.status = status;
+    this.failedTestList = failedTestList;
   }
   
   public SessionDetails() {
@@ -56,6 +60,14 @@ public class SessionDetails {
 
   public void setStatus(int status) {
     this.status = status;
+  }
+
+  public List<String> getFailedTestList() {
+    return failedTestList;
+  }
+
+  public void setFailedTestList(List<String> failedTestList) {
+    this.failedTestList = failedTestList;
   }
 
 }
