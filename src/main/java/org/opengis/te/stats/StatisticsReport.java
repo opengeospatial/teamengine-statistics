@@ -161,11 +161,11 @@ public class StatisticsReport {
         
         runPerTestSuiteInLastYear(testVersionName, userDetails);    
           
-      listOfLastYearMapCount.add(runPerTestSuiteInLastYear);
+      //listOfLastYearMapCount.add(runPerTestSuiteInLastYear);
       }     
       }
-      JSONObject json = new JSONObject();
-      json.put("data", listOfLastYearMapCount);
+      JSONObject json = new JSONObject(runPerTestSuiteInLastYear);
+      //json.put("data", runPerTestSuiteInLastYear);
       System.out.println("\t" + json);
       
       /***********************************************
@@ -218,7 +218,7 @@ public class StatisticsReport {
      **********************************************/
       System.out.println("\nNumber of users per test suite in last year:\n");
       Map<String, Object> numberOfUsersPerTestInLastYear = new HashMap<String, Object>();
-      ArrayList<Map<String, Object>> listNumberOfUsersPerTestInLastYear = new ArrayList<Map<String, Object>>();
+      Map<String, Object> listNumberOfUsersPerTestInLastYear = new HashMap<String, Object>();
       for (int temp = 0; temp < nList.getLength(); temp++) {
         String testName = "";
         Element nNode = (Element) nList.item(temp);
@@ -237,11 +237,11 @@ public class StatisticsReport {
           testVersionName = testVersionName + nVersionName.item(nameCount).getTextContent();
         }        
         numberOfUsersPerTestInLastYear = numberOfUsersPerTestSuite(testVersionName, userDetails);  
-        listNumberOfUsersPerTestInLastYear.add(numberOfUsersPerTestInLastYear);
+        listNumberOfUsersPerTestInLastYear.putAll(numberOfUsersPerTestInLastYear);
       }     
       }
-      JSONObject numberOfUserPerTestSuite = new JSONObject();
-      numberOfUserPerTestSuite.put("data", listNumberOfUsersPerTestInLastYear);
+      JSONObject numberOfUserPerTestSuite = new JSONObject(numberOfUsersPerTestInLastYear);
+      //numberOfUserPerTestSuite.put("data", listNumberOfUsersPerTestInLastYear);
       System.out.println("\t" + numberOfUserPerTestSuite);
       
     
@@ -299,26 +299,18 @@ public class StatisticsReport {
          * 
          **************************************************/
           System.out.println("\nWFS 2.0 - Passing, failing & incomplete test runs in 2019:\n");
-          ArrayList<Map<String, Object>> wfs20StatusWithDrilldown = new ArrayList<Map<String, Object>>();
+          Map<String, Object> wfs20StatusWithDrilldown = new HashMap<String, Object>();
           wfs20FailedTestDrillDownMap.clear();
           wfs20StatusWithDrilldown = wfs20StatusWithDrilldown(wfs20, testStatus, userDetails); 
-          
-          List<List<Object>> wfs20FailedTestListData = new ArrayList<List<Object>>();
-          for (Map.Entry<String, Long> entry : wfs20FailedTestDrillDownMap.entrySet()) {
-            List<Object> testset = new ArrayList<Object>();
-            testset.add(entry.getKey());
-            testset.add(entry.getValue());
-            wfs20FailedTestListData.add(testset);
-          }
           
           JSONObject wfs20StatusDrilldownResult = new JSONObject();
           wfs20StatusDrilldownResult.put("data", wfs20StatusWithDrilldown);
           System.out.println("\t" + wfs20StatusDrilldownResult.get("data").toString()); 
           
-          JSONObject wfs20FailedTestDrillDownMapJson = new JSONObject(wfs20FailedTestListData);
-          wfs20FailedTestDrillDownMapJson.put("data", wfs20FailedTestListData);
-          String wfs20FailedTestDrillDownData = wfs20FailedTestDrillDownMapJson.get("data").toString();
-          System.out.println("\n Drilldown data for Failure: \n\t" + wfs20FailedTestDrillDownData);
+          JSONObject wfs20FailedTestDrillDownMapJson = new JSONObject(wfs20FailedTestDrillDownMap);
+          wfs20FailedTestDrillDownMapJson.put("data", wfs20FailedTestDrillDownMap);
+          //String wfs20FailedTestDrillDownData = wfs20FailedTestDrillDownMapJson.get("data").toString();
+          System.out.println("\n Drilldown data for Failure: \n\t" + wfs20FailedTestDrillDownMapJson);
     
     
         /***************************************************
@@ -371,14 +363,14 @@ public class StatisticsReport {
      * 
      *********************************************/
       
-    generateStatisticsHtml(loggerDate, year, statResultDir, 
-        getListMapAsString(listOfLastYearMapCount), getArrayListAsString(testRunsPerMonth), 
-        getArrayListAsString(usersPerMonth), getListMapAsString(listNumberOfUsersPerTestInLastYear), 
+   generateStatisticsHtml(loggerDate, year, statResultDir, 
+       new JSONObject(runPerTestSuiteInLastYear).toString(), getArrayListAsString(testRunsPerMonth), 
+        getArrayListAsString(usersPerMonth), new JSONObject(listNumberOfUsersPerTestInLastYear).toString(), 
         getArrayListAsString(numberOfUsersExecutedwfs20RunsPerMonth), getArrayListAsString(wfs20RunsPerMonth),
         getArrayListAsString(successArray), getArrayListAsString(failureArray), getArrayListAsString(incompleteArray),
         getArrayListAsString(numberOfUsersExecutedkml22RunsPerMonth), getArrayListAsString(kml22RunsPerMonth),
         getArrayListAsString(kml22SuccessArray), getArrayListAsString(kml22FailureArray), getArrayListAsString(kml22IncompleteArray),
-        wfs20StatusDrilldownResult.get("data").toString(), wfs20FailedTestDrillDownData);
+        wfs20StatusDrilldownResult.get("data").toString(), new JSONObject(wfs20FailedTestDrillDownMap).toString());
       
        
     } catch(Exception e){
@@ -544,7 +536,7 @@ public class StatisticsReport {
   private static void runPerTestSuiteInLastYear(String testVersionName,
       Map<String, List<SessionDetails>> sessionDetailsList){
     
-    runPerTestSuiteInLastYear = new HashMap<String, Object>();
+    //runPerTestSuiteInLastYear = new HashMap<String, Object>();
     long count = 0;
     List<SessionDetails> foundSessions = null;
     for(Map.Entry<String, List<SessionDetails>> userSessions : sessionDetailsList.entrySet()){
@@ -571,8 +563,7 @@ public class StatisticsReport {
         }
       }
     }      
-    runPerTestSuiteInLastYear.put("name", testVersionName);
-    runPerTestSuiteInLastYear.put("y", count);
+    runPerTestSuiteInLastYear.put(testVersionName, count);
   }
   
   /**
@@ -719,8 +710,7 @@ public class StatisticsReport {
       }
 
     }
-    numberOfUsersPerTestSuite.put("name", testVersionName);
-    numberOfUsersPerTestSuite.put("y", userCount);
+    numberOfUsersPerTestSuite.put(testVersionName,userCount);
 
     return numberOfUsersPerTestSuite;
   }
@@ -935,15 +925,15 @@ public class StatisticsReport {
     return wfs20StatusPerMonthMap;
   }
   
-private static ArrayList<Map<String, Object>> wfs20StatusWithDrilldown(String wfs20, Map<String, Integer> testStatus,      
+private static Map<String, Object> wfs20StatusWithDrilldown(String wfs20, Map<String, Integer> testStatus,      
       Map<String, List<SessionDetails>> userDetails) {
     
-    ArrayList<Map<String, Object>> wfs20StatusWithTotalCountList = new ArrayList<Map<String, Object>>();
+    Map<String, Object> wfs20StatusDrillDownMap = new HashMap<String, Object>();
     Map<String, Long> wfs20FailedTestMap = new HashMap<String, Long>();
 
     for (Entry<String, Integer> status : testStatus.entrySet()) {
       long testCount =0;
-      Map<String, Object> wfs20StatusDrillDownMap = new HashMap<String, Object>();
+      
       DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd  HH:mm:ss");
       DateTime currentTime = DateTime.now();
       List<SessionDetails> foundSessions = null;
@@ -1001,26 +991,11 @@ private static ArrayList<Map<String, Object>> wfs20StatusWithDrilldown(String wf
         }
         
       }
-      wfs20StatusDrillDownMap.put("name", status.getKey());
-      wfs20StatusDrillDownMap.put("y", testCount);
-      if(status.getValue() == 6){
-        wfs20StatusDrillDownMap.put("drilldown", status.getKey());
-      }
-      switch (status.getValue()) {
-        case 0:
-          wfs20StatusDrillDownMap.put("color", "#ffff00");
-          break;
-        case 1:
-          wfs20StatusDrillDownMap.put("color", "#33cc33");
-          break;
-        case 6:
-          wfs20StatusDrillDownMap.put("color", "#ff0000");
-          break;
-      }
-      wfs20StatusWithTotalCountList.add(wfs20StatusDrillDownMap);
+      wfs20StatusDrillDownMap.put(status.getKey(), testCount);
+  
     }
     wfs20FailedTestDrillDownMap.putAll( wfs20FailedTestMap);    
-    return wfs20StatusWithTotalCountList;
+    return wfs20StatusDrillDownMap;
   }
   
   /**

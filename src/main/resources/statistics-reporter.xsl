@@ -26,329 +26,471 @@
     <html>
          <head>
             <title>TEAM Engine Statistics Report</title>
-            <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-            <script src="http://code.highcharts.com/highcharts.js"></script>
-            <script src="https://code.highcharts.com/modules/drilldown.js"></script>
+            <script src = "https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js">  </script>
+		    <link rel = "stylesheet" type = "text/css" href = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css"></link>
+		    <script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js">  </script>
+		    <script src = "https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes">  </script>
          </head>
          <body>
-            <div id="pichartContainer" style="width: 100%; height: 500px; margin: 0 auto"></div>
-            <br />
-            <hr />
-            <br />
-            <div id="barlinechartContainer" style="width: 80%; height: 500px; margin: 0 auto"></div>
-            <br />
-            <hr />
-            <br />
-            <div id="pichartusersPerTestContainer" style="width: 100%; height: 500px; margin: 0 auto"></div>
-            <br />
-            <hr />
-            <br />
-            <div id="userExecutedWfs20RunsPerMonthContainer" style="width: 100%; height: 500px; margin: 0 auto"></div>
-            <br />
-            <hr />
-            <br />
-            <div id="wfs20StandardsRunsPerMonth" style="width: 100%; height: 500px; margin: 0 auto"></div>
-            <br />
-            <hr />
-            <br />
-            <div id="wfs20StandardSuccessFailureContainer" style="width: 100%; height: 500px; margin: 0 auto"></div>
-            <br />
-            <hr />
-            <br />
-            <div id="wfs20StatusWithDrilldown" style="width: 100%; height: 500px; margin: 0 auto"></div>
-            <br />
-            <hr />
-            <br />
-            <div id="userExecutedKml22RunsPerMonthContainer" style="width: 100%; height: 500px; margin: 0 auto"></div>
-            <br />
-            <hr />
-            <br />
-            <div id="kml22StandardsRunsPerMonth" style="width: 100%; height: 500px; margin: 0 auto"></div>
-            <br />
-            <hr />
-            <br />
-            <div id="kml22StandardSuccessFailureContainer" style="width: 100%; height: 500px; margin: 0 auto"></div>
+            <div class = "chart-container">
+         <canvas id = "testRunPertestSuite" style = "position:relative; width:80vw; height:80vh">  </canvas>
+      </div>
+      <br />
+      <hr />
+      <br/>
+      <div class = "chart-container">
+         <canvas id = "barLineChartContainer" style = "position:relative; width:80vw; height:80vh">  </canvas>
+      </div>
+      <br />
+      <hr />
+      <br/>
+      <div class = "chart-container">
+         <canvas id = "pichartusersPerTestContainer" style = "position:relative; width:80vw; height:80vh">  </canvas>
+      </div>
+      <br />
+      <hr />
+      <br/>
+      <div class = "chart-container">
+         <canvas id = "userExecutedWfs20RunsPerMonthContainer" style = "position:relative; width:80vw; height:80vh">  </canvas>
+      </div>
+      <br />
+      <hr />
+      <br/>
+      <div class = "chart-container">
+         <canvas id = "wfs20StandardsRunsPerMonth" style = "position:relative; width:80vw; height:80vh">  </canvas>
+      </div>
+      <br />
+      <hr />
+      <br/>
+      <div class = "chart-container">
+         <canvas id = "wfs20StandardSuccessFailureContainer" style = "position:relative; width:80vw; height:80vh">  </canvas>
+      </div>
+      <br />
+      <hr />
+      <br />
+      <div class="chart-container" >
+      <canvas id="drilldown-pie" style="position:relative; width:80vw; height:70vh"></canvas>
+      </div>
+      <div class="chart-container" style="position:relative;" id="failure-pie-chart-div">
+      <canvas id="failure-pie-chart" style="position:relative; width:80vw; height:70vh"></canvas>
+      <button type="button" style="position:absolute; top:100px; right:200px;" onclick="toggleChart();">Back </button>
+      </div>
+      <br />
+      <hr />
+      <br/>
+      <div class = "chart-container">
+         <canvas id = "UserExecutedKml22RunsPerMonthContainer" style = "position:relative; width:80vw; height:80vh">  </canvas>
+      </div>
+      <br />
+      <hr />
+      <br/>
+      <div class = "chart-container">
+         <canvas id = "kml22StandardsRunsPerMonth" style = "position:relative; width:80vw; height:80vh">  </canvas>
+      </div>
+      <br />
+      <hr />
+      <br/>
+      <div class = "chart-container">
+         <canvas id = "kml22StandardSuccessFailure" style = "position:relative; width:80vw; height:80vh">  </canvas>
+      </div>
             <script language="JavaScript">
                $(function () {
                
-               <!-- RunsPerTestSuiteInLastYear -->
-               $(&apos;#pichartContainer&apos;).highcharts({
-               chart: {
-               plotBackgroundColor: null,
-               plotBorderWidth: null,
-               plotShadow: false,
-               type: &apos;pie&apos;
-               },
-               credits: {
-               enabled: false
-               },
-               title: {
-               text: &apos;Runs per test suite in <xsl:value-of select="$year" />&apos;
-               },
-               tooltip: {
-               pointFormat: &apos;<xsl:text disable-output-escaping="yes"><![CDATA[{series.name}: <b>{point.y}</b>]]></xsl:text>&apos;
-               },
-               plotOptions: {
-               pie: {
-               size:&apos;80%&apos;,
-               allowPointSelect: true,
-               cursor: &apos;pointer&apos;,
-               dataLabels: {
-               enabled: true,
-               format: &apos;<xsl:text disable-output-escaping="yes"><![CDATA[{point.name}: <b>{point.y}</b>]]></xsl:text>&apos;,
-               style: {
-               color: <xsl:text disable-output-escaping="yes"><![CDATA[(Highcharts.theme && Highcharts.theme.contrastTextColor)]]> </xsl:text> || &apos;black&apos;
-               }
-               }
-               }
-               },
-               series: [{
-               name: &apos;Count&apos;,
-               colorByPoint: true,
-               data: <xsl:value-of select="$testRunPertestSuite" />
-               }]
+            <!-- RunsPerTestSuiteInLastYear -->
+            var RunsPerTestSuiteInLastYear_pie_chart = $("#testRunPertestSuite");
+            var sorted_pie_data = ArraySort(<xsl:value-of select="$testRunPertestSuite" />, function (a, b) {
+                              return a - b
+                           });
+            var s_label = Object.keys(sorted_pie_data);
+            var s_data = Object.values(sorted_pie_data);
+
+            new Chart(RunsPerTestSuiteInLastYear_pie_chart, {
+                  type: &apos;pie&apos;,
+                  data: {
+                     labels: s_label,
+                     datasets: [{
+                           label: &quot;wfs20&quot;,
+                           data: s_data,
+                        }
+                     ]
+                  },
+                  options: {
+                     responsive: true,
+                     title: {
+                        display: true,
+                        position: &quot;top&quot;,
+                        text: &quot;Runs per test suite in <xsl:value-of select="$year" />&quot;,
+                        fontSize: 18,
+                        fontColor: &quot;#111&quot;
+                     },
+                     legend: {
+                        display: true,
+                        position: &quot;bottom&quot;,
+                        labels: {
+                           boxWidth: 15,
+                           fontColor: &quot;#333&quot;,
+                           fontSize: 12
+                        }
+                     }
+                  }
                });
                
                <!-- TotalNumberOfTestsAndUsersPerMonth -->
-               Highcharts.chart(&apos;barlinechartContainer&apos;, {
-                   chart: {
-                       zoomType: &apos;xy&apos;
-                   },
-               	credits: {
-               		enabled: false
-               		},
-                   title: {
-                       text: &apos;Total number of tests and users per month in <xsl:value-of select="$year" />&apos;
-                   },
-                   xAxis: [{
-                       categories: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;,
-                           &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;],
-                       crosshair: true
-                   }],
-                   yAxis: [{ // Primary yAxis
-                       labels: {
-                           format: &apos;{value}&apos;,
-                           style: {
-                               color: Highcharts.getOptions().colors[1]
-                           }
-                       },
-                       title: {
-                           text: &apos;Total tests per month in <xsl:value-of select="$year" />&apos;,
-                           style: {
-                               color: Highcharts.getOptions().colors[1]
-                           }
-                       },
-               		opposite: true
-                   }, { // Secondary yAxis
-                       title: {
-                           text: &apos;Number of users per month in <xsl:value-of select="$year" />&apos;,
-                           style: {
-                               color: Highcharts.getOptions().colors[0]
-                           }
-                       },
-                       labels: {
-                           format: &apos;{value}&apos;,
-                           style: {
-                               color: Highcharts.getOptions().colors[0]
-                           }
-                       }
-                   }],
-                   tooltip: {
-                       shared: true
-                   },
-                   legend: {
-                       layout: &apos;vertical&apos;,
-                       align: &apos;right&apos;,
-                       //x: 120,
-                       verticalAlign: &apos;top&apos;,
-                       //y: 100,
-                       floating: true,
-                       backgroundColor: <xsl:text disable-output-escaping="yes"><![CDATA[(Highcharts.theme && Highcharts.theme.legendBackgroundColor) || 'rgba(255,255,255,0.25)']]> </xsl:text>
-                   },
-                   series: [{
-                       name: &apos;Total tests per month in <xsl:value-of select="$year" />&apos;,
-                       type: &apos;column&apos;,
-                       yAxis: 1,
-                       data: <xsl:value-of select="$testRunsPerMonth" />
-                   }, {
-                       name: &apos;Number of users per month in <xsl:value-of select="$year" />&apos;,
-                       type: &apos;spline&apos;,
-                       data: <xsl:value-of select="$usersPerMonth" />
-                   }]
-               });
+               var barlinechartContainer = $(&quot;#barLineChartContainer&quot;);
+		       new Chart(barlinechartContainer, {
+      				type: &apos;bar&apos;,
+      				data: {
+      					datasets: [{
+      							label: &apos;Total tests per month in <xsl:value-of select="$year" />&apos;,
+      							yAxisID: &apos;A&apos;,
+      							data: <xsl:value-of select="$testRunsPerMonth" />
+      						}, {
+      							label: &apos;Number of users per month in <xsl:value-of select="$year" />&apos;,
+      							yAxisID: &apos;B&apos;,
+      							data: <xsl:value-of select="$usersPerMonth" />,
+      
+      							// Changes this dataset to become a line
+      							type: &apos;line&apos;,
+      							fill: false
+      						}
+      					],
+      					labels: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;]
+      				},
+      				options: {
+      					title: {
+      					  display: true,
+      					  text: &apos;Total number of tests and users per month in <xsl:value-of select="$year" />&apos;
+      					},
+      					legend: {
+      					   display: true,
+      					   position: &apos;bottom&apos;,
+      				  },
+      					scales: {
+      						xAxes: [{
+      							gridLines: {
+      								display:false
+      							}
+      						}],
+      						yAxes: [{
+      							id: &apos;A&apos;,
+      							ticks: {
+      								//stepSize: 5,
+      								beginAtZero: true
+      							},
+      							position: &apos;left&apos;,
+      							scaleLabel: {
+      								display: true,
+      								labelString: &apos;Total tests per month in <xsl:value-of select="$year" />&apos;
+      							},
+      							gridLines: {
+      							   display:false
+      							}   
+      						}, 	{
+      							id: &apos;B&apos;,
+      							ticks: {
+      								//stepSize: 5,
+      								beginAtZero: true
+      							},
+      							position: &apos;right&apos;,
+      							scaleLabel: {
+      								display: true,
+      								labelString: &apos;Number of users per month in <xsl:value-of select="$year" />&apos;
+      							},
+      							gridLines: {
+      							   display:false
+      							} 
+      						}]
+      					}
+      				  }
+      			});
                
                <!-- NumberOfUsersPerTestSuiteInLastYear -->
-               $(&apos;#pichartusersPerTestContainer&apos;).highcharts({
-                    chart: {
-                        plotBackgroundColor: null,
-                        plotBorderWidth: null,
-                        plotShadow: false,
-                        type: &apos;pie&apos;
-                    },
-                  credits: {
-                  enabled: false
-                  },
-                    title: {
-                        text: &apos;Number of users per test suite in <xsl:value-of select="$year" />&apos;
-                    },
-                    tooltip: {
-                        pointFormat: <xsl:text disable-output-escaping="yes"><![CDATA['{series.name}: <b>{point.y}</b>']]> </xsl:text>
-                    },
-                    plotOptions: {
-                        pie: {
-                        size:&apos;80%&apos;,
-                            allowPointSelect: true,
-                            cursor: &apos;pointer&apos;,
-                            dataLabels: {
-                                enabled: true,
-                                format: <xsl:text disable-output-escaping="yes"><![CDATA['<b>{point.name}</b> : {point.y}']]> </xsl:text>,
-                                style: {
-                                    color: <xsl:text disable-output-escaping="yes"><![CDATA[(Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black' ]]> </xsl:text>
-                                }
-                            }
-                        }
-                    },
-                    series: [{
-                        name: &apos;Users&apos;,
-                        colorByPoint: true,
-                        data: <xsl:value-of select="$listNumberOfUsersPerTestInLastYear" />
-                    }]
-                });
+               var pichartUsersPerTestContainer = $(&quot;#pichartusersPerTestContainer&quot;);
+               var sorted_pie_data = ArraySort(<xsl:value-of select="$listNumberOfUsersPerTestInLastYear" />, function (a, b) {
+					return a - b
+				});
+      			var s_label = Object.keys(sorted_pie_data);
+      			var s_data = Object.values(sorted_pie_data);
+      
+      			new Chart(pichartUsersPerTestContainer, {
+      					type: &apos;pie&apos;,
+      					data: {
+      						labels: s_label,
+      						datasets: [{
+      								label: &quot;Users&quot;,
+      								data: s_data,
+      							}
+      						]
+      					},
+      					options: {
+      						responsive: true,
+      						title: {
+      							display: true,
+      							position: &quot;top&quot;,
+      							text: &quot;Number of users per test suite in <xsl:value-of select="$year" />&quot;,
+      							fontSize: 18,
+      							fontColor: &quot;#111&quot;
+      						},
+      						legend: {
+      							display: true,
+      							position: &quot;bottom&quot;,
+      							labels: {
+      								boxWidth: 15,
+      								fontColor: &quot;#333&quot;,
+      								fontSize: 12
+      							}
+      						}
+      					}
+      				});
                 
                <!-- ******************************************************************* -->
                <!-- **********               WFS 2.0                    *************** -->
                <!-- ******************************************************************* -->
                 
                 <!-- UserExecutedWfs20RunsPerMonthContainer -->
-                Highcharts.chart(&apos;userExecutedWfs20RunsPerMonthContainer&apos;, {
-            
-                   chart: {
-                       type: &apos;spline&apos;
-                   },
-                   credits: {
-                     enabled: false
-                   },
-                   title: {
-                       text: &apos;Number of users executed the WFS 2.0 standard per month in <xsl:value-of select="$year" />&apos;
-                   },
-                   xAxis: {
-                       categories: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;]
-                   },
-                   yAxis: {
-                       title: {
-                           text: &apos;Test count&apos;
-                       }
-                   },
-                   series: [{
-                       name: &apos;WFS 2.0&apos;,
-                       data: <xsl:value-of select="$numberOfUsersExecutedwfs20RunsPerMonth" />
-                   }]
-               
-               });
+                new Chart(document.getElementById(&quot;userExecutedWfs20RunsPerMonthContainer&quot;), {
+         			type: &apos;line&apos;,
+         			responsive: true,
+         			maintainAspectRatio: false,
+         			data: {
+         				labels: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;],
+         				datasets: [{
+         						data: <xsl:value-of select="$numberOfUsersExecutedwfs20RunsPerMonth" />,
+         						label: &quot;WFS 2.0&quot;,
+         						borderColor: &quot;#3e95cd&quot;,
+         						fill: false
+         					}
+         				]
+         			},
+         			options: {
+         				title: {
+         					display: true,
+         					text: &apos;Number of users executed the WFS 2.0 standard per month in <xsl:value-of select="$year" />&apos;,
+         					fontSize: 18
+         				},
+         				legend: {
+         					display: true,
+         					position: &apos;bottom&apos;,
+         				},
+         				scales: {
+         					xAxes: [{
+         							gridLines: {
+         								display: false
+         							}
+         						}
+         					],
+         					yAxes: [{
+         							ticks: {
+         								//stepSize: 5,
+         								beginAtZero: true
+         							},
+         							scaleLabel: {
+         								display: true,
+         								labelString: &apos;Test Count&apos;
+         							},
+         							gridLines: {
+         								// display:false
+         							}
+         						}
+         					]
+         				}
+         			}
+         		});
                 
                <!-- wfs20StandardsRunsPerMonth --> 
-               Highcharts.chart(&apos;wfs20StandardsRunsPerMonth&apos;, {
-               
-                   chart: {
-                       type: &apos;spline&apos;
-                   },
-                   title: {
-                       text: &apos;WFS 2.0 standard runs per month in <xsl:value-of select="$year" />&apos;
-                   },
-                   xAxis: {
-                       categories: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;]
-                   },
-                   yAxis: {
-                       title: {
-                           text: &apos;Test count&apos;
-                       }
-                   },
-                   series: [{
-                       name: &apos;WFS 2.0&apos;,
-                       data: <xsl:value-of select="$wfs20RunsPerMonth" />
-                   }]
-               }); 
+               new Chart(document.getElementById(&quot;wfs20StandardsRunsPerMonth&quot;), {
+         			type: &apos;line&apos;,
+         			responsive: true,
+         			maintainAspectRatio: false,
+         			data: {
+         				labels: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;],
+         				datasets: [{
+         						data: <xsl:value-of select="$wfs20RunsPerMonth" />,
+         						label: &quot;WFS 2.0&quot;,
+         						borderColor: &quot;#3e95cd&quot;,
+         						fill: false
+         					}
+         				]
+         			},
+         			options: {
+         				title: {
+         					display: true,
+         					text: &apos;WFS 2.0 standard runs per month in <xsl:value-of select="$year" />&apos;,
+         					fontSize: 18
+         				},
+         				legend: {
+         					display: true,
+         					position: &apos;bottom&apos;,
+         				},
+         				scales: {
+         					xAxes: [{
+         							gridLines: {
+         								display: false
+         							}
+         						}
+         					],
+         					yAxes: [{
+         							ticks: {
+         								//stepSize: 5,
+         								beginAtZero: true
+         							},
+         							scaleLabel: {
+         								display: true,
+         								labelString: &apos;Test Count&apos;
+         							},
+         							gridLines: {
+         								// display:false
+         							}
+         						}
+         					]
+         				}
+         			}
+         		});
                
                <!-- wfs20StandardSuccessFailure -->
-               Highcharts.chart(&apos;wfs20StandardSuccessFailureContainer&apos;, {
-                   chart: {
-                       type: &apos;column&apos;
-                   },
-                   title: {
-                       text: &apos;WFS 2.0 standard success, failures and incomplete by runs per month in <xsl:value-of select="$year" />&apos;
-                   },
-                   xAxis: {
-                       categories: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;],
-                       crosshair: true
-                   },
-                   yAxis: {
-                       min: 0,
-                       title: {
-                           text: &apos;Test Run Count&apos;
-                       }
-                   },
-                   tooltip: {
-                       headerFormat: <xsl:text disable-output-escaping="yes"><![CDATA['<span style="font-size:10px">{point.key}</span><table>']]> </xsl:text>,
-                       pointFormat: <xsl:text disable-output-escaping="yes"><![CDATA['<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                                    '<td style="padding:0"><b>{point.y}</b></td></tr>']]> </xsl:text>,
-                       footerFormat: <xsl:text disable-output-escaping="yes"><![CDATA['</table>']]> </xsl:text>,
-                       shared: true,
-                       useHTML: true
-                   },
-                   plotOptions: {
-                       column: {
-                           pointPadding: 0.2,
-                           borderWidth: 0
-                       }
-                   },
-                   series: [{
-                       name: &apos;Success&apos;,
-                       data: <xsl:value-of select="$successArray" />
+               new Chart(document.getElementById(&quot;wfs20StandardSuccessFailureContainer&quot;), {
+         			type: &apos;bar&apos;,
+         			responsive: true,
+         			maintainAspectRatio: false,
+         			data: {
+         				labels: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;],
+         				datasets: [
+         				{
+         				  label: &quot;Success&quot;,
+         				  backgroundColor: &quot;#33cc33&quot;,
+         				  borderWidth: 1,
+         				  data: <xsl:value-of select="$successArray" />
+         				},
+         				{
+         				  label: &quot;Failure&quot;,
+         				  backgroundColor: &quot;#ff0000&quot;,
+         				  borderWidth: 1,
+         				  data: <xsl:value-of select="$failureArray" />
+         				},
+         				{
+         				  label: &quot;Incomplete&quot;,
+         				  backgroundColor: &quot;#ffff00&quot;,
+         				  borderWidth: 1,
+         				  data: <xsl:value-of select="$incompleteArray" />
+         				}
+         			  ]
+         			},
+         			options: {
+         				title: {
+         					display: true,
+         					text: &apos;WFS 2.0 - Passing, failing and incomplete test runs in <xsl:value-of select="$year" />&apos;,
+         					fontSize: 18
+         				},
+         				legend: {
+         					display: true,
+         					position: &apos;bottom&apos;,
+         				},
+         				scales: {
+         					xAxes: [{
+         							gridLines: {
+         								display: false
+         							}
+         						}
+         					],
+         					yAxes: [{
+         							ticks: {
+         								//stepSize: 5,
+         								beginAtZero: true
+         							},
+         							scaleLabel: {
+         								display: true,
+         								labelString: &apos;Test Count&apos;
+         							},
+         							gridLines: {
+         								// display:false
+         							}
+         						}
+         					]
+         				}
+         			}
+         		});
                
-                   }, {
-                       name: &apos;Failure&apos;,
-                       data: <xsl:value-of select="$failureArray" />
+               <!-- ************************* Drilldown Pie Chart ******************************************* -->
                
-                   }, {
-                       name: &apos;Incomplete&apos;,
-                       data: <xsl:value-of select="$incompleteArray" />
-               
-                   }]
-               });
-               
-               Highcharts.chart(&apos;wfs20StatusWithDrilldown&apos;, {
-                    chart: {
-                      type: &apos;pie&apos;
-                    },
-                    title: {
-                      text: &apos;WFS 2.0 - Passing, failing &amp; incomplete test runs in <xsl:value-of select="$year" />&apos;
-                    },
-                    plotOptions: {
-                      series: {
-                        dataLabels: {
-                          enabled: true,
-                          format: &apos;<xsl:text disable-output-escaping="yes"><![CDATA[{point.name}: {point.y}]]></xsl:text>&apos;
+                  $(&quot;#failure-pie-chart-div&quot;).hide();
+                  var drilldown_pie_chart = $(&quot;#drilldown-pie&quot;);
+                  var s_label = Object.keys(<xsl:value-of select="$wfs20StatusDrilldownResult" />);
+                  var s_data = Object.values(<xsl:value-of select="$wfs20StatusDrilldownResult" />);
+                  
+                  var drilldownPieChart = new Chart(drilldown_pie_chart, {
+                        type: &apos;pie&apos;,
+                        data: {
+                           labels: s_label,
+                           datasets: [{
+                                 label: &quot;wfs20&quot;,
+                                 data: s_data,
+                                 backgroundColor: [&apos;#ffff00&apos;, &apos;#33cc33&apos;, &apos;#ff0000&apos;]
+                              }
+                           ]
+                        },
+                        options: {
+                           responsive: true,
+                           title: {
+                              display: true,
+                              position: &quot;top&quot;,
+                              text: &quot;WFS 2.0 - Passing, failing and incomplete test runs in <xsl:value-of select="$year" />&quot;,
+                              fontSize: 18,
+                              fontColor: &quot;#111&quot;
+                           },
+                           legend: {
+                              display: true,
+                              position: &quot;bottom&quot;,
+                              labels: {
+                                 boxWidth: 15,
+                                 fontColor: &quot;#333&quot;,
+                                 fontSize: 16
+                              }
+                           },
+                           &apos;onClick&apos; : function (e, item) {
+                                 var activePoints = drilldownPieChart.getElementsAtEvent(e);
+                                 var selectedIndex = activePoints[0]._index;
+                                 var failureLabel = this.data.labels[selectedIndex];
+                                 if(failureLabel == &apos;Failure&apos;){
+                                    $(&quot;#drilldown-pie&quot;).hide();
+                                    $(&quot;#failure-pie-chart-div&quot;).show();
+                                    $(&apos;#failure-pie-chart-div&apos;).focus();
+                                 }
+                           }
                         }
-                      }
-                    },
-                  
-                    tooltip: {
-                      headerFormat: &apos;<xsl:text disable-output-escaping="yes"><![CDATA[<span style="font-size:11px">{series.name}</span><br>]]> </xsl:text>&apos;,
-                      pointFormat: &apos;<xsl:text disable-output-escaping="yes"><![CDATA[<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b><br/>]]> </xsl:text>&apos;
-                    },
-                  
-                    series: [{
-                      name: &quot;WFS 2.0 standard&quot;,
-                      colorByPoint: true,
-                      data:<xsl:value-of select="$wfs20StatusDrilldownResult" />
-                    }],
-                    drilldown: {
-                      series: [{
-                        name: &quot;Failure&quot;,
-                        id: &quot;Failure&quot;,
-                        data:<xsl:value-of select="$wfs20FailedTestDrillDownData" />
-                      }]
-                    }
+                     });
+               <!-- Failure pie chart graph -->
+                  var sorted_failure_pie_data = ArraySort(<xsl:value-of select="$wfs20FailedTestDrillDownData" />, function (a, b) {
+                     return a - b
+                  });
+                 var s_failure_pie_label = Object.keys(sorted_failure_pie_data);
+                 var s_failure_pie_data = Object.values(sorted_failure_pie_data);
+                 
+                 new Chart(document.getElementById(&quot;failure-pie-chart&quot;), {
+                     type: &apos;pie&apos;,
+                     data: {
+                        labels: s_failure_pie_label,
+                        datasets: [{
+                              label: &quot;Failure tests&quot;,
+                              data: s_failure_pie_data
+                           }
+                        ]
+                     },
+                     options: {
+                        title: {
+                           display: true,
+                           text: &apos;WFS 2.0 - Passing, failing and incomplete test runs in <xsl:value-of select="$year" />&apos;,
+                           fontSize: 16
+                        },
+                        legend: {
+                           display: true,
+                           position: &quot;bottom&quot;,
+                           labels: {
+                              boxWidth: 10,
+                              fontColor: &quot;#333&quot;,
+                              fontSize: 8
+                           }
+                        }
+                     }
                   });
                
                <!-- ******************************************************************* -->
@@ -356,103 +498,207 @@
                <!-- ******************************************************************* -->
                
                <!-- UserExecutedKml22RunsPerMonthContainer -->
-                Highcharts.chart(&apos;userExecutedKml22RunsPerMonthContainer&apos;, {
-            
-                   chart: {
-                       type: &apos;spline&apos;
-                   },
-                   credits: {
-                     enabled: false
-                   },
-                   title: {
-                       text: &apos;Number of users executed the KML 2.2 standard per month in <xsl:value-of select="$year" />&apos;
-                   },
-                   xAxis: {
-                       categories: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;]
-                   },
-                   yAxis: {
-                       title: {
-                           text: &apos;Test count&apos;
-                       }
-                   },
-                   series: [{
-                       name: &apos;KML 2.2&apos;,
-                       data: <xsl:value-of select="$numberOfUsersExecutedkml22RunsPerMonth" />
-                   }]
-               
-               });
+                new Chart(document.getElementById(&quot;UserExecutedKml22RunsPerMonthContainer&quot;), {
+         			type: &apos;line&apos;,
+         			responsive: true,
+         			maintainAspectRatio: false,
+         			data: {
+         				labels: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;],
+         				datasets: [{
+         						data: <xsl:value-of select="$numberOfUsersExecutedkml22RunsPerMonth" />,
+         						label: &quot;KML 2.2&quot;,
+         						borderColor: &quot;#3e95cd&quot;,
+         						fill: false
+         					}
+         				]
+         			},
+         			options: {
+         				title: {
+         					display: true,
+         					text: &apos;Number of users executed the KML 2.2 standard per month in <xsl:value-of select="$year" />&apos;,
+         					fontSize: 18
+         				},
+         				legend: {
+         					display: true,
+         					position: &apos;bottom&apos;,
+         				},
+         				scales: {
+         					xAxes: [{
+         							gridLines: {
+         								display: false
+         							}
+         						}
+         					],
+         					yAxes: [{
+         							ticks: {
+         								//stepSize: 5,
+         								beginAtZero: true
+         							},
+         							scaleLabel: {
+         								display: true,
+         								labelString: &apos;Test Count&apos;
+         							},
+         							gridLines: {
+         								// display:false
+         							}
+         						}
+         					]
+         				}
+         			}
+         		});
                 
                <!-- kml22StandardsRunsPerMonth --> 
-               Highcharts.chart(&apos;kml22StandardsRunsPerMonth&apos;, {
-               
-                   chart: {
-                       type: &apos;spline&apos;
-                   },
-                   title: {
-                       text: &apos;KML 2.2 standard runs per month in <xsl:value-of select="$year" />&apos;
-                   },
-                   xAxis: {
-                       categories: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;]
-                   },
-                   yAxis: {
-                       title: {
-                           text: &apos;Test count&apos;
-                       }
-                   },
-                   series: [{
-                       name: &apos;KML 2.2&apos;,
-                       data: <xsl:value-of select="$kml22RunsPerMonth" />
-                   }]
-               }); 
+               new Chart(document.getElementById(&quot;kml22StandardsRunsPerMonth&quot;), {
+         			type: &apos;line&apos;,
+         			responsive: true,
+         			maintainAspectRatio: false,
+         			data: {
+         				labels: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;],
+         				datasets: [{
+         						data: <xsl:value-of select="$kml22RunsPerMonth" />,
+         						label: &quot;KML 2.2&quot;,
+         						borderColor: &quot;#3e95cd&quot;,
+         						fill: false
+         					}
+         				]
+         			},
+         			options: {
+         				title: {
+         					display: true,
+         					text: &apos;KML 2.2 standard runs per month in <xsl:value-of select="$year" />&apos;,
+         					fontSize: 18
+         				},
+         				legend: {
+         					display: true,
+         					position: &apos;bottom&apos;,
+         				},
+         				scales: {
+         					xAxes: [{
+         							gridLines: {
+         								display: false
+         							}
+         						}
+         					],
+         					yAxes: [{
+         							ticks: {
+         								//stepSize: 5,
+         								beginAtZero: true
+         							},
+         							scaleLabel: {
+         								display: true,
+         								labelString: &apos;Test Count&apos;
+         							},
+         							gridLines: {
+         								// display:false
+         							}
+         						}
+         					]
+         				}
+         			}
+         		});
                
                <!-- kml22StandardSuccessFailure -->
-               Highcharts.chart(&apos;kml22StandardSuccessFailureContainer&apos;, {
-                   chart: {
-                       type: &apos;column&apos;
-                   },
-                   title: {
-                       text: &apos;KML 2.2 standard success, failures and incomplete by runs per month in <xsl:value-of select="$year" />&apos;
-                   },
-                   xAxis: {
-                       categories: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;],
-                       crosshair: true
-                   },
-                   yAxis: {
-                       min: 0,
-                       title: {
-                           text: &apos;Test Run Count&apos;
-                       }
-                   },
-                   tooltip: {
-                       headerFormat: <xsl:text disable-output-escaping="yes"><![CDATA['<span style="font-size:10px">{point.key}</span><table>']]> </xsl:text>,
-                       pointFormat: <xsl:text disable-output-escaping="yes"><![CDATA['<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                                    '<td style="padding:0"><b>{point.y}</b></td></tr>']]> </xsl:text>,
-                       footerFormat: <xsl:text disable-output-escaping="yes"><![CDATA['</table>']]> </xsl:text>,
-                       shared: true,
-                       useHTML: true
-                   },
-                   plotOptions: {
-                       column: {
-                           pointPadding: 0.2,
-                           borderWidth: 0
-                       }
-                   },
-                   series: [{
-                       name: &apos;Success&apos;,
-                       data: <xsl:value-of select="$kml22SuccessArray" />
-               
-                   }, {
-                       name: &apos;Failure&apos;,
-                       data: <xsl:value-of select="$kml22FailureArray" />
-               
-                   }, {
-                       name: &apos;Incomplete&apos;,
-                       data: <xsl:value-of select="$kml22IncompleteArray" />
-               
-                   }]
-               });
+               new Chart(document.getElementById(&quot;kml22StandardSuccessFailure&quot;), {
+                     type: &apos;bar&apos;,
+                     responsive: true,
+                     maintainAspectRatio: false,
+                     data: {
+                        labels: [&apos;Jan&apos;, &apos;Feb&apos;, &apos;Mar&apos;, &apos;Apr&apos;, &apos;May&apos;, &apos;Jun&apos;, &apos;Jul&apos;, &apos;Aug&apos;, &apos;Sep&apos;, &apos;Oct&apos;, &apos;Nov&apos;, &apos;Dec&apos;],
+                        datasets: [
+                        {
+                          label: &quot;Success&quot;,
+                          backgroundColor: &quot;#33cc33&quot;,
+                          borderWidth: 1,
+                          data: <xsl:value-of select="$kml22SuccessArray" />
+                        },
+                        {
+                          label: &quot;Failure&quot;,
+                          backgroundColor: &quot;#ff0000&quot;,
+                          borderWidth: 1,
+                          data: <xsl:value-of select="$kml22FailureArray" />
+                        },
+                        {
+                          label: &quot;Incomplete&quot;,
+                          backgroundColor: &quot;#ffff00&quot;,
+                          borderWidth: 1,
+                          data: <xsl:value-of select="$kml22IncompleteArray" />
+                        }
+                       ]
+                     },
+                     options: {
+                        title: {
+                           display: true,
+                           text: &apos;KML 2.2 standard success, failures and incomplete by runs per month in <xsl:value-of select="$year" />&apos;,
+                           fontSize: 18
+                        },
+                        legend: {
+                           display: true,
+                           position: &apos;bottom&apos;,
+                        },
+                        scales: {
+                           xAxes: [{
+                                 gridLines: {
+                                    display: false
+                                 }
+                              }
+                           ],
+                           yAxes: [{
+                                 ticks: {
+                                    //stepSize: 5,
+                                    beginAtZero: true
+                                 },
+                                 scaleLabel: {
+                                    display: true,
+                                    labelString: &apos;Test Count&apos;
+                                 },
+                                 gridLines: {
+                                    // display:false
+                                 }
+                              }
+                           ]
+                        }
+                     }
+                  });
                 
             });
+            <!-- Toggle drilldown pie chart -->
+            function toggleChart(){
+              $("#failure-pie-chart-div").hide();
+              $("#drilldown-pie").show();
+              }
+            
+            <!-- Function to sort Associative Array by its values. -->
+            ArraySort = function (array, sortFunc) {
+               var tmp = [];
+               var aSorted = [];
+               var oSorted = {};
+      
+               for (var k in array) {
+                  if (array.hasOwnProperty(k))
+                     tmp.push({
+                        key: k,
+                        value: array[k]
+                     });
+               }
+      
+               tmp.sort(function (o1, o2) {
+                  return sortFunc(o1.value, o2.value);
+               });
+      
+               if (Object.prototype.toString.call(array) === '[object Array]') {
+                  $.each(tmp, function (index, value) {
+                     aSorted.push(value.value);
+                  });
+                  return aSorted;
+               }
+      
+               if (Object.prototype.toString.call(array) === '[object Object]') {
+                  $.each(tmp, function (index, value) {
+                     oSorted[value.key] = value.value;
+                  });
+                  return oSorted;
+               }
+            };
             </script>
          </body>
       </html>
